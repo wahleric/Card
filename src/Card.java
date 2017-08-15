@@ -62,4 +62,31 @@ public class Card {
 	public Player getOwner() {
 		return owner;
 	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	public void setHP(int hP) {
+		this.hP = hP;
+	}
+	
+	public void setAP(int upperAP, int lowerAP, int leftAP, int rightAP) {
+		this.upperAP = upperAP;
+		this.lowerAP = lowerAP;
+		this.leftAP = leftAP;
+		this.rightAP = rightAP;
+	}
+	
+	public void setOwner(Player owner) {
+		this.owner = owner;
+	}
+	
+	public String toString() {
+		return name + ": " + hP;
+	}
 }
