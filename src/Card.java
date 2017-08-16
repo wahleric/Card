@@ -14,15 +14,13 @@ public class Card {
 	private int lowerAP;
 	private int leftAP;
 	private int rightAP;
-	private Player owner;
 	
 	//Explicit private default constructor that prevents invalid Cards from being created
 	private Card() {
-		this("", "", 0, 0, 0, 0, 0, null);
 	}
 	
 	//Main constructor used for creating Card objects
-	public Card(String name, String description, int hP, int upperAP, int lowerAP, int leftAP, int rightAP, Player owner) {
+	public Card(String name, String description, int hP, int upperAP, int lowerAP, int leftAP, int rightAP) {
 		this.name = name;
 		this.description = description;
 		this.maxHP = hP;
@@ -30,7 +28,6 @@ public class Card {
 		this.lowerAP = lowerAP;
 		this.leftAP = leftAP;
 		this.rightAP = rightAP;
-		this.owner = owner;
 	}
 	
 	//Returns the name of the monster represented by this Card
@@ -68,11 +65,6 @@ public class Card {
 		return rightAP;
 	}
 	
-	//Returns the owner of this Card
-	public Player getOwner() {
-		return owner;
-	}
-	
 	//Sets the name of the monster represented by this Card
 	public void setName(String name) {
 		this.name = name;
@@ -96,11 +88,6 @@ public class Card {
 		this.rightAP = rightAP;
 	}
 	
-	//Sets the owner of this Card
-	public void setOwner(Player owner) {
-		this.owner = owner;
-	}
-	
 	//Returns a string that displays the name and stats of the monster represented by this Card
 	public String toString() {
 		String s = name + ":\n\n";
@@ -110,7 +97,6 @@ public class Card {
 		s += "Lower AP: " + lowerAP + "\n";
 		s += "Left AP: " + leftAP + "\n";
 		s += "Right AP: " + rightAP + "\n";
-		
 		return s;
 	}
 }

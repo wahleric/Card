@@ -1,6 +1,8 @@
 /*
  * This class represents a Player object in the game. It keeps track of a single contestant, including the name of the
  * contestant and how many games they have won.
+ * 
+ * Author: Eric Wahlquist
  */
 public class Player {
 
@@ -9,7 +11,6 @@ public class Player {
 	
 	//Explicit private default constructor that prevents empty Players from being created
 	private Player() {
-		this("", 0);
 	}
 	
 	//Main constructor used for creating Player objects
