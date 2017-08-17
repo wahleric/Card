@@ -1,7 +1,6 @@
 /*
  * This class represents a monster card used in the game. Each card has a name of the monster (name), a description
- * of the monster (description), its health (hP), it's upper, lower, left, and right attack points (AP), and an owner 
- * (player).
+ * of the monster (description), its monster level, its health (hP), and it's upper, lower, left, and right attack points (AP).
  * 
  * Author: Eric Wahlquist
  */
@@ -9,6 +8,7 @@ public class Card {
 
 	private String name;
 	private String description;
+	private int level;
 	private int maxHP;
 	private int upperAP;
 	private int lowerAP;
@@ -20,9 +20,10 @@ public class Card {
 	}
 	
 	//Main constructor used for creating Card objects
-	public Card(String name, String description, int hP, int upperAP, int lowerAP, int leftAP, int rightAP) {
+	public Card(String name, String description, int level, int hP, int upperAP, int lowerAP, int leftAP, int rightAP) {
 		this.name = name;
 		this.description = description;
+		this.level = level;
 		this.maxHP = hP;
 		this.upperAP = upperAP;
 		this.lowerAP = lowerAP;
@@ -40,6 +41,10 @@ public class Card {
 		return description;
 	}
 	
+	//Returns the level of the monster represented by this Card
+	public int getLevel() {
+		return level;
+	}
 	//Returns the maximum HP (health points) of the monster represented by this Card
 	public int getMaxHP() {
 		return maxHP;
@@ -75,6 +80,11 @@ public class Card {
 		this.description = description;
 	}
 	
+	//Sets the level of the monster represented by this Card
+	public void setLevel(int level) {
+		this.level = level;
+	}
+	
 	//Sets the maximum HP (health points) of the monster represented by this Card
 	public void setMaxHP(int hP) {
 		this.maxHP = hP;
@@ -92,6 +102,7 @@ public class Card {
 	public String toString() {
 		String s = name + ":\n\n";
 		s += description + "\n\n";
+		s += "Monster level: " + level + "\n";
 		s += "Maximum HP: " + maxHP + "\n";
 		s += "Upper AP: " + upperAP + "\n";
 		s += "Lower AP: " + lowerAP + "\n";

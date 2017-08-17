@@ -9,7 +9,7 @@ public class Battlefield {
 
 	private Player player1;
 	private Player player2;
-	private ArrayList<Node> map;
+	private Node[] map;
 	
 	//Explicit private default constructor that prevents a null battlefield from being created
 	private Battlefield() {
@@ -19,7 +19,10 @@ public class Battlefield {
 	public Battlefield(Player player1, Player player2) {
 		this.player1 = player1;
 		this.player2 = player2;
-		map = new ArrayList<Node>();
+		map = new Node[25];
+		for (int i = 0; i < 25; i++) {
+			map[i].setNodeNumber(i + 1);
+		}
 	}
 	
 	//Returns the node located at the given position on the board. The Node numbers increase from left to right, top
@@ -30,7 +33,13 @@ public class Battlefield {
 			throw new IllegalArgumentException("Invalid node reference");
 		}
 		
-		else return map.get(nodeNumber);
+		else return map[nodeNumber - 1];
+	}
+	
+	//Places a card in a Node on the Battlefield
+	public void placeCard(Player player, Card card, int nodeNumber) {
+		map[nodeNumber - 1].setCurrentCard(card);
+		map[nodeNumber - 1].setOwner(player);
 	}
 	
 	/*
@@ -111,5 +120,48 @@ public class Battlefield {
 			this.nodeNumber = nodeNumber;
 		}
 		
+		//Sets the current Card placed in this Node
+		public void setCurrentCard(Card currentCard) {
+			this.currentCard = currentCard;
+			this.currentHP = currentCard.getMaxHP();
+			this.currentUpperAP = currentCard.getUpperAP();
+			this.currentLowerAP = currentCard.getLowerAP();
+			this.currentLeftAP = currentCard.getLeftAP();
+			this.currentRightAP = currentCard.getRightAP();
+		}
+		
+		//Sets the current HP of the monster represented by the Card placed in this Node
+		public void setCurrentHP(int currentHP) {
+			checkNode();
+			this.currentHP = currentHP;
+		}
+		
+		//Sets the current AP for all four sides of the monster represented by the Card
+		public void setCurrentAP(int currentUpperAP, int currentLowerAP, int currentLeftAP, int currentRightAP) {
+			checkNode();
+			this.currentUpperAP = currentUpperAP;
+			this.currentLowerAP = currentLowerAP;
+			this.currentLeftAP = currentLeftAP;
+			this.currentRightAP = currentRightAP;
+		}
+		
+		public void setOwner(Player owner) {
+			this.owner = owner;
+		}
+		
+		//Returns true if this Node is empty (no Card is placed), false otherwise
+		public boolean isEmpty() {
+			if (currentCard == null) {
+				return true;
+			}
+			return false;
+		}
+		
+		//Private helper method checks that a Card is in this Node before performing operations
+		private void checkNode() {
+			if (this.isEmpty()) {
+				throw new IllegalArgumentException("Invalid Card reference");
+			}
+		}
 	}
 }

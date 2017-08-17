@@ -1,0 +1,6 @@
+Dust Storm
+A painful, eye-scraping gust of dust particles.
+30 1 1 1 1
+Exposed Wire
+ZZZAP!
+10 3 1 3 3
