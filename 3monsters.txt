@@ -1,3 +1,27 @@
 Mace Spindu
 Spins a powerful mace with attack increasing in a clockwise direction.
-50 1 3 4 2
+50 2 4 5 3
+Name
+Desc
+55 10 10 0 10
+Name2
+Desc2
+60 1 5 4 7
+Name3
+Desc3
+65 10 0 1 1
+Name4
+Desc4
+70 6 5 4 3
+Name5
+Desc5
+75 5 0 0 5
+Name6
+Desc6
+80 2 2 2 2
+Name7
+Desc7
+85 1 0 4 0
+Name8
+Desc8
+90 0 0 0 0
