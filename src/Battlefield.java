@@ -1,43 +1,51 @@
+import java.io.*;
 import java.util.*;
 
 /*
  * This class represents a board on which the game is played. The Battlefield consists of Card Nodes arranged in 
- * a 5x5 square. The board begins empty, and keeps track of the game status
+ * a 5x5 board, which begins empty. Battlefield keeps track of the game status including the placement of Cards as
+ * well as the cards in each Player's hand.
  * 
+ * Author: Eric Wahlquist
  */
 public class Battlefield {
 
 	private Player player1;
 	private Player player2;
 	private Node[] board;
+	private List<Card> allCards;
 	
 	//Explicit private default constructor that prevents a null battlefield from being created
 	private Battlefield() {
 	}
 	
 	//Main constructor used for creating Battlefield objects
-	public Battlefield(Player player1, Player player2) {
+	public Battlefield(Player player1, Player player2) throws IOException {
 		this.player1 = player1;
 		this.player2 = player2;
 		board = new Node[25];
 		for (int i = 0; i < 25; i++) {
 			board[i] = new Node(i + 1);
 		}
+		allCards = new ArrayList<Card>();
+		initDatabase();
 	}
 	
 	//Returns the node located at the given position on the board. The Node numbers increase from left to right, top
 	//to bottom. Node 1 is located at the upper left, and Node 25 is located at the lower right.
 	public Node getNode(int nodeNumber) {
 		nodeNumber--;
-		if (nodeNumber < 1 || nodeNumber > 25) {
+		if (nodeNumber < 0 || nodeNumber > 24) {
 			throw new IllegalArgumentException("Invalid node reference");
 		}
-		
-		else return board[nodeNumber - 1];
+		return board[nodeNumber];
 	}
 	
 	//Places a card in a Node on the Battlefield
 	public void placeCard(Player player, Card card, int nodeNumber) {
+		if (!getNode(nodeNumber).isEmpty()) {
+			throw new IllegalArgumentException("Invalid Node: Node already has a Card");
+		}
 		board[nodeNumber - 1].setCurrentCard(card);
 		board[nodeNumber - 1].setOwner(player);
 	}
@@ -208,6 +216,43 @@ public class Battlefield {
 			s += " ";
 		}
 		return s;
+	}
+	
+	//Initializes the database of all monster cards by reading from monsters.txt and loads them into the game 
+	//when this Battlefield is created
+	private void initDatabase() throws IOException {
+		for (int i = 1; i <= 5; i++) {
+			File database = new File(i + "monsters.txt");
+			Scanner scanner = new Scanner(database);
+			while (scanner.hasNextLine()) {
+				String name = scanner.nextLine();
+				String description = scanner.nextLine();
+				String stats = scanner.nextLine();
+				Scanner statScan = new Scanner(stats);
+				int level = i;
+				int hP = statScan.nextInt();
+				int upperAP = statScan.nextInt();
+				int lowerAP = statScan.nextInt();
+				int leftAP = statScan.nextInt();
+				int rightAP = statScan.nextInt();
+				if (description.length() > 40) {
+					String newDescription = "";
+					String tempString = "";
+					Scanner lineScan = new Scanner(description);
+					while (lineScan.hasNext()) {
+						tempString += lineScan.next() + " ";
+						if (!lineScan.hasNext()) {
+							newDescription += tempString;
+						} else if (tempString.length() > 40) {
+							newDescription += tempString + "\n";
+							tempString = "";
+						}
+					}
+					description = newDescription;
+				}
+				allCards.add(new Card(name, description, level, hP, upperAP, lowerAP, leftAP, rightAP));
+			}
+		}
 	}
 	
 	/*
