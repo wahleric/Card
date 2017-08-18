@@ -14,6 +14,7 @@ public class Battlefield {
 	private Player player2;
 	private Node[] board;
 	private List<Card> allCards;
+	private int turn;
 	
 	//Explicit private default constructor that prevents a null battlefield from being created
 	private Battlefield() {
@@ -29,7 +30,18 @@ public class Battlefield {
 		}
 		allCards = new ArrayList<Card>();
 		initDatabase();
+		turn = 1;
 	}
+	
+	//Returns Player 1
+	public Player getPlayer1() {
+		return player1;
+	}
+	
+	//Returns Player 2
+		public Player getPlayer2() {
+			return player2;
+		}
 	
 	//Returns the node located at the given position on the board. The Node numbers increase from left to right, top
 	//to bottom. Node 1 is located at the upper left, and Node 25 is located at the lower right.
@@ -55,24 +67,59 @@ public class Battlefield {
 		if (board[nodeNumber - 1].isEmpty()) {
 			throw new IllegalArgumentException("Invalid Card: Node is empty");
 		}
-		Card card = board[nodeNumber - 1].getCurrentCard();
+		Card card = board[nodeNumber - 1].getCard();
 		board[nodeNumber - 1].setCurrentCard(null);
 		board[nodeNumber - 1].setOwner(null);
 		return card;
 	}
 	
+	//Ends the turn and initiates all attacks
+	//NEEDS SUPPORT FOR CHECKING OWNERS
+	public void endOfTurn() {
+		for (int i = 0; i < board.length; i++) {
+			Player owner = board[i].getOwner();
+			if (i >= 5) {
+				Node nodeAbove = board[i - 5];
+				if (!nodeAbove.isEmpty()) {
+					nodeAbove.setCurrentHP(nodeAbove.getHP() - board[i].getUpperAP());
+				}
+			}
+			if (i % 5 != 0) {
+				Node nodeLeft = board[i - 1];
+				if (!nodeLeft.isEmpty()) {
+					nodeLeft.setCurrentHP(nodeLeft.getHP() - board[i].getLeftAP());
+				}
+			}
+			if ((i - 4) % 5 != 0) {
+				Node nodeRight = board[i + 1];
+				if (!nodeRight.isEmpty()) {
+					nodeRight.setCurrentHP(nodeRight.getHP() - board[i].getRightAP());
+				}
+			}
+			if (i <= 19) {
+				Node nodeBelow = board[i + 5];
+				if (!nodeBelow.isEmpty()) {
+					nodeBelow.setCurrentHP(nodeBelow.getHP() - board[i].getLowerAP());
+				}
+			}
+		}
+		turn++;
+	}
+	
+	
 	//Returns a String representation of the current status of the board
 	public String toString() {
-		String s = border();
+		String s = padString("Turn: " + turn, 131);
+		s += "\n" + border();
 		//Do the following for each level of the board
 		for (int i = 0; i < 5; i++) {
 			s += firstLine(i);
 			s += spacerLine();
 			s += monsterNameLine(i);
-			s += monsterOwnerLine(i);
+			s += hPLine(i);
 			s += middleLine(i);
 			s += spacerLine();
-			s += spacerLine();
+			s += monsterOwnerLine(i);
 			s += spacerLine();
 			s += lastLine(i);
 			s += border();
@@ -120,9 +167,9 @@ public class Battlefield {
 			if (board[(5 * level) + i].isEmpty()) {
 				top += spacerBox();
 			} else {
-				Card card = board[(5 * level) + i].getCurrentCard();
+				Card card = board[(5 * level) + i].getCard();
 				String upperAP = "" + card.getUpperAP();
-				top += padString(upperAP);
+				top += padString(upperAP, 25);
 				top += "|";
 			}
 		}
@@ -137,9 +184,9 @@ public class Battlefield {
 			if (board[(5 * level) + i].isEmpty()) {
 				bottom += spacerBox();
 			} else {
-				Card card = board[(5 * level) + i].getCurrentCard();
+				Card card = board[(5 * level) + i].getCard();
 				String lowerAP = "" + card.getLowerAP();
-				bottom += padString(lowerAP);
+				bottom += padString(lowerAP, 25);
 				bottom += "|";
 			}
 		}
@@ -154,14 +201,30 @@ public class Battlefield {
 			if (board[(5 * level) + i].isEmpty()) {
 				mNL += spacerBox();
 			} else {
-				Card card = board[(5 * level) + i].getCurrentCard();
-				String name = card.getName() + ":";
-				mNL += padString(name);
+				Card card = board[(5 * level) + i].getCard();
+				String name = card.getName() + "";
+				mNL += padString(name, 25);
 				mNL += "|";
 			}
 		}
 		mNL += "\n";
 		return mNL;
+	}
+	
+	private String hPLine(int level) {
+		String hPLine = "|";
+		for (int i = 0; i < 5; i++) {
+			if (board[(5 * level) + i].isEmpty()) {
+				hPLine += spacerBox();
+			} else {
+				Node node = board[(5 * level) + i];
+				String hP = "HP: " + node.getHP();
+				hPLine += padString(hP, 25);
+				hPLine += "|";
+			}
+		}
+		hPLine += "\n";
+		return hPLine;
 	}
 	
 	//Private helper method for toString()
@@ -171,7 +234,7 @@ public class Battlefield {
 			if (board[(5 * level) + i].isEmpty()) {
 				middleLine += spacerBox();
 			} else {
-				Card card = board[(5 * level) + i].getCurrentCard();
+				Card card = board[(5 * level) + i].getCard();
 				String leftAttack = "  " + card.getLeftAP();
 				String rightAttack = card.getRightAP() + "  ";
 				int spacing = 25 - (leftAttack.length() + rightAttack.length());
@@ -195,8 +258,8 @@ public class Battlefield {
 				mOL += spacerBox();
 			} else {
 				Node node = board[(5 * level) + i];
-				String owner = node.getCurrentOwner().getName();
-				mOL += padString(owner);
+				String owner = node.getOwner().getName();
+				mOL += padString(owner, 25);
 				mOL += "|";
 			}
 		}
@@ -205,9 +268,9 @@ public class Battlefield {
 	}
 	
 	//Private helper method for toString()
-	private String padString(String toPad) {
+	private String padString(String toPad, int totalSpaces) {
 		String s = "";
-		int spacing = 25 - toPad.length();
+		int spacing = totalSpaces - toPad.length();
 		for (int j = 0; j < (spacing / 2); j++) {
 			s += " ";
 		}
@@ -294,37 +357,37 @@ public class Battlefield {
 		}
 		
 		//Returns the current Card placed in this Node
-		public Card getCurrentCard() {
+		public Card getCard() {
 			return currentCard;
 		}
 		
 		//Returns the current HP of the monster represented by the Card in this Node
-		public int getCurrentHP() {
+		public int getHP() {
 			return currentHP;
 		}
 		
 		//Returns the current upper AP of the monster represented by the Card in this Node
-		public int getCurrentUpperAP() {
+		public int getUpperAP() {
 			return currentUpperAP;
 		}
 		
 		//Returns the current lower AP of the monster represented by the Card in this Node
-		public int getCurrentLowerAP() {
+		public int getLowerAP() {
 			return currentLowerAP;
 		}
 		
 		//Returns the current left AP of the monster represented by the Card in this Node
-		public int getCurrerntLeftAP() {
+		public int getLeftAP() {
 			return currentLeftAP;
 		}
 		
 		//Returns the current right AP of the monster represented by the Card in this Node
-		public int getCurrentRightAP() {
+		public int getRightAP() {
 			return currentRightAP;
 		}
 		
 		//Returns the owner of the Card in this Node
-		public Player getCurrentOwner() {
+		public Player getOwner() {
 			return owner;
 		}
 		
