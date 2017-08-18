@@ -9,7 +9,7 @@ public class Battlefield {
 
 	private Player player1;
 	private Player player2;
-	private Node[] map;
+	private Node[] board;
 	
 	//Explicit private default constructor that prevents a null battlefield from being created
 	private Battlefield() {
@@ -19,9 +19,9 @@ public class Battlefield {
 	public Battlefield(Player player1, Player player2) {
 		this.player1 = player1;
 		this.player2 = player2;
-		map = new Node[25];
+		board = new Node[25];
 		for (int i = 0; i < 25; i++) {
-			map[i].setNodeNumber(i + 1);
+			board[i] = new Node(i + 1);
 		}
 	}
 	
@@ -33,13 +33,181 @@ public class Battlefield {
 			throw new IllegalArgumentException("Invalid node reference");
 		}
 		
-		else return map[nodeNumber - 1];
+		else return board[nodeNumber - 1];
 	}
 	
 	//Places a card in a Node on the Battlefield
 	public void placeCard(Player player, Card card, int nodeNumber) {
-		map[nodeNumber - 1].setCurrentCard(card);
-		map[nodeNumber - 1].setOwner(player);
+		board[nodeNumber - 1].setCurrentCard(card);
+		board[nodeNumber - 1].setOwner(player);
+	}
+	
+	//Removes a Card from a Node on the Battlefield and returns it
+	public Card removeCard(int nodeNumber) {
+		if (board[nodeNumber - 1].isEmpty()) {
+			throw new IllegalArgumentException("Invalid Card: Node is empty");
+		}
+		Card card = board[nodeNumber - 1].getCurrentCard();
+		board[nodeNumber - 1].setCurrentCard(null);
+		board[nodeNumber - 1].setOwner(null);
+		return card;
+	}
+	
+	//Returns a String representation of the current status of the board
+	public String toString() {
+		String s = border();
+		//Do the following for each level of the board
+		for (int i = 0; i < 5; i++) {
+			s += firstLine(i);
+			s += spacerLine();
+			s += monsterNameLine(i);
+			s += monsterOwnerLine(i);
+			s += middleLine(i);
+			s += spacerLine();
+			s += spacerLine();
+			s += spacerLine();
+			s += lastLine(i);
+			s += border();
+			
+		}
+		return s;
+		
+	}
+	
+	//Private helper method for toString()
+	private String border() {
+		String border = "\n";
+		for (int i = 0; i < 131; i++) {
+			border = "-" + border;
+		}
+		return border;
+	}
+	
+	//Private helper method for toString()
+	private String spacerLine() {
+		String spacer = "|\n";
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 25; j++) {
+				spacer = " " + spacer;
+			}
+			spacer = "|" + spacer;
+		}
+		return spacer;
+	}
+	
+	//Private helper method for toString()
+	private String spacerBox() {
+		String spacer = "";
+		for (int j = 0; j < 25; j++) {
+			spacer += " ";
+		}
+		spacer += "|";
+		return spacer;
+	}
+	
+	//Private helper method for toString()
+	private String firstLine(int level) {
+		String top = "|";
+		for (int i = 0; i < 5; i++) {
+			if (board[(5 * level) + i].isEmpty()) {
+				top += spacerBox();
+			} else {
+				Card card = board[(5 * level) + i].getCurrentCard();
+				String upperAP = "" + card.getUpperAP();
+				top += padString(upperAP);
+				top += "|";
+			}
+		}
+		top += "\n";
+		return top;
+	}
+	
+	//Private helper method for toString()
+	private String lastLine(int level) {
+		String bottom = "|";
+		for (int i = 0; i < 5; i++) {
+			if (board[(5 * level) + i].isEmpty()) {
+				bottom += spacerBox();
+			} else {
+				Card card = board[(5 * level) + i].getCurrentCard();
+				String lowerAP = "" + card.getLowerAP();
+				bottom += padString(lowerAP);
+				bottom += "|";
+			}
+		}
+		bottom += "\n";
+		return bottom;
+	}
+	
+	//Private helper method for toString()
+	private String monsterNameLine(int level) {
+		String mNL = "|";
+		for (int i = 0; i < 5; i++) {
+			if (board[(5 * level) + i].isEmpty()) {
+				mNL += spacerBox();
+			} else {
+				Card card = board[(5 * level) + i].getCurrentCard();
+				String name = card.getName() + ":";
+				mNL += padString(name);
+				mNL += "|";
+			}
+		}
+		mNL += "\n";
+		return mNL;
+	}
+	
+	//Private helper method for toString()
+	private String middleLine(int level) {
+		String middleLine = "|";
+		for (int i = 0; i < 5; i++) {
+			if (board[(5 * level) + i].isEmpty()) {
+				middleLine += spacerBox();
+			} else {
+				Card card = board[(5 * level) + i].getCurrentCard();
+				String leftAttack = "  " + card.getLeftAP();
+				String rightAttack = card.getRightAP() + "  ";
+				int spacing = 25 - (leftAttack.length() + rightAttack.length());
+				String temp = leftAttack;
+				for (int j = 0; j < spacing; j++) {
+					temp += " ";
+				}
+				temp += rightAttack + "|";
+				middleLine += temp;
+			}
+		}
+		middleLine += "\n";
+		return middleLine;
+	}
+	
+	//Private helper method for toString()
+	private String monsterOwnerLine(int level) {
+		String mOL = "|";
+		for (int i = 0; i < 5; i++) {
+			if (board[(5 * level) + i].isEmpty()) {
+				mOL += spacerBox();
+			} else {
+				Node node = board[(5 * level) + i];
+				String owner = node.getCurrentOwner().getName();
+				mOL += padString(owner);
+				mOL += "|";
+			}
+		}
+		mOL += "\n";
+		return mOL;
+	}
+	
+	//Private helper method for toString()
+	private String padString(String toPad) {
+		String s = "";
+		int spacing = 25 - toPad.length();
+		for (int j = 0; j < (spacing / 2); j++) {
+			s += " ";
+		}
+		s += toPad;
+		for (int j = 0; j < spacing - (spacing / 2); j++) {
+			s += " ";
+		}
+		return s;
 	}
 	
 	/*
