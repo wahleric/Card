@@ -13,7 +13,7 @@ public class Battlefield {
 	private Player player1;
 	private Player player2;
 	private Node[] board;
-	private List<Card> allCards;
+	private List<Card> deck;
 	private int turn;
 	
 	//Explicit private default constructor that prevents a null battlefield from being created
@@ -28,7 +28,7 @@ public class Battlefield {
 		for (int i = 0; i < 25; i++) {
 			board[i] = new Node(i + 1);
 		}
-		allCards = new ArrayList<Card>();
+		deck = new ArrayList<Card>();
 		initDatabase();
 		turn = 1;
 	}
@@ -39,41 +39,86 @@ public class Battlefield {
 	}
 	
 	//Returns Player 2
-		public Player getPlayer2() {
-			return player2;
-		}
+	public Player getPlayer2() {
+		return player2;
+	}
 	
 	//Returns the node located at the given position on the board. The Node numbers increase from left to right, top
 	//to bottom. Node 1 is located at the upper left, and Node 25 is located at the lower right.
 	public Node getNode(int nodeNumber) {
 		nodeNumber--;
 		if (nodeNumber < 0 || nodeNumber > 24) {
-			throw new IllegalArgumentException("Invalid node reference");
+			throw new IllegalArgumentException("Invalid: Node does not exist");
 		}
 		return board[nodeNumber];
 	}
 	
-	//Places a card in a Node on the Battlefield
-	public void placeCard(Player player, Card card, int nodeNumber) {
-		if (!getNode(nodeNumber).isEmpty()) {
-			throw new IllegalArgumentException("Invalid Node: Node already has a Card");
+	public Card getCardAtNode(int nodeNumber) {
+		nodeNumber--;
+		if (nodeNumber < 0 || nodeNumber > 24) {
+			throw new IllegalArgumentException("Invalid: Node does not exist");
 		}
-		board[nodeNumber - 1].setCurrentCard(card);
-		board[nodeNumber - 1].setOwner(player);
+		return board[nodeNumber].getCard();
+	}
+	
+	//Returns true of the deck of all monster cards to draw from is empty; false otherwise
+	public boolean deckIsEmpty() {
+		return deck.isEmpty();
+	}
+	
+	//Removes a card from the deck
+	public Card removeCardFromDeck() {
+		if (deckIsEmpty()) {
+			throw new IllegalArgumentException("Invalid: Deck is empty");
+		}
+		return deck.remove(0);
+	}
+	
+	//Adds a card to the deck
+	public void addCardToDeck(Card card) {
+		deck.add(card);
+	}
+	
+	//Places a card in a Node on the Battlefield. Returns true if successful, false otherwise.
+	public boolean placeCard(Player player, Card card, int nodeNumber) {
+		if (getNode(nodeNumber).isEmpty()) {
+			getNode(nodeNumber).setCurrentCard(card);
+			getNode(nodeNumber).setOwner(player);
+			removeCardFromHand(card, player);
+			return true;
+		}
+		return false;
+	}
+	
+	//Adds a Card to a Player's hand
+	public void addCardToHand(Card card, Player player) {
+		player.getHand().add(card);
+	}
+	
+	//Removes a Card from a Player's hand
+	public Card removeCardFromHand(Card card, Player player) {
+		for (Card cardToRemove : player.getHand()) {
+			if (cardToRemove == card) {
+				player.getHand().remove(card);
+				return card;
+			}
+		}
+		throw new IllegalArgumentException("Invalid: Card is not in hand");
 	}
 	
 	//Removes a Card from a Node on the Battlefield and returns it
 	public Card removeCard(int nodeNumber) {
 		if (board[nodeNumber - 1].isEmpty()) {
-			throw new IllegalArgumentException("Invalid Card: Node is empty");
+			throw new IllegalArgumentException("Invalid: Node is empty");
 		}
-		Card card = board[nodeNumber - 1].getCard();
-		board[nodeNumber - 1].setCurrentCard(null);
-		board[nodeNumber - 1].setOwner(null);
+		Card card = getNode(nodeNumber).getCard();
+		getNode(nodeNumber).setCurrentCard(null);
+		getNode(nodeNumber).setOwner(null);
 		return card;
 	}
 	
 	//Ends the turn and initiates all attacks
+	//ADD SUPPORT FOR REMOVING PLAYER HEALTH
 	public void endOfTurn() {
 		for (int i = 0; i < board.length; i++) {
 			Player owner = board[i].getOwner();
@@ -105,11 +150,52 @@ public class Battlefield {
 		turn++;
 	}
 	
+	//Returns all cards from the board as well as both players hands to the deck, and re-shuffles the deck
+	public void resetBoard() {
+		for (int i = 1; i <= 25; i++) {
+			if (!getNode(i).isEmpty()) {
+				addCardToDeck(getNode(i).removeCard());
+			}
+		}
+		for (Card card : player1.getHand()) {
+			addCardToDeck(removeCardFromHand(card, player1));
+		}
+		for (Card card : player2.getHand()) {
+			addCardToDeck(removeCardFromHand(card, player2));
+		}
+		Collections.shuffle(deck);
+		player1.setHP(200);
+		player2.setHP(200);
+		turn = 1;
+	}
+	
+	//Returns the Player who won the game. Returns a new Player named "a Tie" if the game was a tie, and returns null if the game is not over.
+	public Player getWinner() {
+		if (player1.getHP() > 0 && player2.getHP() <= 0) {
+			return player2;
+		}
+		if (player1.getHP() <= 0 && player2.getHP() > 0) {
+			return player2;
+		}
+		if (player1.getHP() <= 0 && player2.getHP() <= 0) {
+			return new Player("a Tie");
+		}
+		return null;
+	}
+	
 	
 	//Returns a String representation of the current status of the board
 	public String toString() {
-		String s = padString("Turn: " + turn, 131);
-		s += "\n" + border();
+		String s = padString("Turn: " + turn, 131) + "\n";
+		String player1HP = player1.getName() + ": " + player1.getHP() + " HP";
+		String player2HP = player2.getName() + ": " + player2.getHP() + " HP";
+		s += player1HP;
+		int spacing = 131 - (player1HP.length() + player2HP.length());
+		for (int i = 0; i < spacing; i++) {
+			s += " ";
+		}
+		s += player2HP;
+		s += "\n\n" + border();
 		//Do the following for each level of the board
 		for (int i = 0; i < 5; i++) {
 			s += firstLine(i);
@@ -124,8 +210,7 @@ public class Battlefield {
 			s += border();
 			
 		}
-		return s;
-		
+		return s;	
 	}
 	
 	//Private helper method for toString()
@@ -297,6 +382,7 @@ public class Battlefield {
 				int lowerAP = statScan.nextInt();
 				int leftAP = statScan.nextInt();
 				int rightAP = statScan.nextInt();
+				statScan.close();
 				if (description.length() > 40) {
 					String newDescription = "";
 					String tempString = "";
@@ -311,9 +397,11 @@ public class Battlefield {
 						}
 					}
 					description = newDescription;
+					lineScan.close();
 				}
-				allCards.add(new Card(name, description, level, hP, upperAP, lowerAP, leftAP, rightAP));
+				deck.add(new Card(name, description, level, hP, upperAP, lowerAP, leftAP, rightAP));
 			}
+			scanner.close();
 		}
 	}
 	
@@ -396,13 +484,13 @@ public class Battlefield {
 		}
 		
 		//Sets the current Card placed in this Node
-		public void setCurrentCard(Card currentCard) {
-			this.currentCard = currentCard;
-			this.currentHP = currentCard.getMaxHP();
-			this.currentUpperAP = currentCard.getUpperAP();
-			this.currentLowerAP = currentCard.getLowerAP();
-			this.currentLeftAP = currentCard.getLeftAP();
-			this.currentRightAP = currentCard.getRightAP();
+		public void setCurrentCard(Card card) {
+			this.currentCard = card;
+			this.currentHP = card.getMaxHP();
+			this.currentUpperAP = card.getUpperAP();
+			this.currentLowerAP = card.getLowerAP();
+			this.currentLeftAP = card.getLeftAP();
+			this.currentRightAP = card.getRightAP();
 		}
 		
 		//Sets the current HP of the monster represented by the Card placed in this Node
@@ -420,8 +508,22 @@ public class Battlefield {
 			this.currentRightAP = currentRightAP;
 		}
 		
+		//Sets the current owner of this node
 		public void setOwner(Player owner) {
 			this.owner = owner;
+		}
+		
+		//Removes a Card placed in this node and returns it
+		public Card removeCard() {
+			Card card = getCard();
+			currentCard = null;
+			currentHP = 0;
+			currentUpperAP = 0;
+			currentLowerAP = 0;
+			currentLeftAP = 0;
+			currentRightAP = 0;
+			owner = null;
+			return card;
 		}
 		
 		//Returns true if this Node is empty (no Card is placed), false otherwise
@@ -435,7 +537,7 @@ public class Battlefield {
 		//Private helper method checks that a Card is in this Node before performing operations
 		private void checkNode() {
 			if (this.isEmpty()) {
-				throw new IllegalArgumentException("Invalid Card reference");
+				throw new IllegalArgumentException("Invalid: Node is empty");
 			}
 		}
 	}
