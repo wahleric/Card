@@ -74,31 +74,30 @@ public class Battlefield {
 	}
 	
 	//Ends the turn and initiates all attacks
-	//NEEDS SUPPORT FOR CHECKING OWNERS
 	public void endOfTurn() {
 		for (int i = 0; i < board.length; i++) {
 			Player owner = board[i].getOwner();
 			if (i >= 5) {
 				Node nodeAbove = board[i - 5];
-				if (!nodeAbove.isEmpty()) {
+				if (!nodeAbove.isEmpty() && nodeAbove.getOwner() != owner) {
 					nodeAbove.setCurrentHP(nodeAbove.getHP() - board[i].getUpperAP());
 				}
 			}
 			if (i % 5 != 0) {
 				Node nodeLeft = board[i - 1];
-				if (!nodeLeft.isEmpty()) {
+				if (!nodeLeft.isEmpty() && nodeLeft.getOwner() != owner) {
 					nodeLeft.setCurrentHP(nodeLeft.getHP() - board[i].getLeftAP());
 				}
 			}
 			if ((i - 4) % 5 != 0) {
 				Node nodeRight = board[i + 1];
-				if (!nodeRight.isEmpty()) {
+				if (!nodeRight.isEmpty() && nodeRight.getOwner() != owner) {
 					nodeRight.setCurrentHP(nodeRight.getHP() - board[i].getRightAP());
 				}
 			}
 			if (i <= 19) {
 				Node nodeBelow = board[i + 5];
-				if (!nodeBelow.isEmpty()) {
+				if (!nodeBelow.isEmpty() && nodeBelow.getOwner() != owner) {
 					nodeBelow.setCurrentHP(nodeBelow.getHP() - board[i].getLowerAP());
 				}
 			}
@@ -281,7 +280,7 @@ public class Battlefield {
 		return s;
 	}
 	
-	//Initializes the database of all monster cards by reading from monsters.txt and loads them into the game 
+	//Initializes the database of all monster cards by reading from *monsters.txt and loads them into the game 
 	//when this Battlefield is created
 	private void initDatabase() throws IOException {
 		for (int i = 1; i <= 5; i++) {

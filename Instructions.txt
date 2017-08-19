@@ -1,0 +1,28 @@
+--------------------------------------------------------------------------------------------------------------------
+						 THE CARDS
+--------------------------------------------------------------------------------------------------------------------
+
+Each monster card consists of:
+
+Name: The name of the monster
+Description: A short description of the monster
+Level: The power ranking of this monster from 1-5, with level 1 being the weakest and level 5 being the strongest.
+Max HP (Health points): The total amount of damage the monster can take before it is killed.
+Upper AP (Attack power): The amount of damage done to any enemy monster cards placed directly above the monster.
+Lower AP (Attack power): The amount of damage done to any enemy monster cards placed directly below the monster.
+Left AP (Attack power): The amount of damage done to any enemy monster cards placed directly left of the monster.
+Right AP (Attack power): The amount of damage done to any enemy monster cards placed directly right of the monster.
+
+--------------------------------------------------------------------------------------------------------------------
+						THE GAMEPLAY
+--------------------------------------------------------------------------------------------------------------------
+
+In this game, players battle by placing monster cards on a 5x5 board. The game begins with an empty board. Each 
+player starts with 200 health and is given a random hand of monster cards to use. The two players roll the dice to 
+see who goes first.
+
+After both players have had a chance to place cards on the board, the turn is over. The damage done to each monster
+in play is then calculated, and the board is updated with each monsters current HP. The total damage done by each 
+players cards is then subtracted from their opponents health at the end of each turn. When a player's health reaches 
+0, they have lost, and the game is over. If both players reach 0 in the same turn, the game is a draw.
+

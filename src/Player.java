@@ -1,6 +1,6 @@
 /*
  * This class represents a Player object in the game. It keeps track of a single contestant, including the name of the
- * contestant and how many games they have won.
+ * contestant.
  * 
  * Author: Eric Wahlquist
  */
@@ -13,7 +13,7 @@ public class Player {
 	}
 	
 	//Main constructor used for creating Player objects
-	public Player(String name, int wins) {
+	public Player(String name) {
 		this.name = name;
 	}
 	
