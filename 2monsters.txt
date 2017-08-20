@@ -1,27 +1,27 @@
-Name
-Desc
+Lucky the Leprechaun
+Uses his luck to avoid death, having a low maximum HP
 20 7 7 7 7
-Name2
-Desc2
+Grungle
+A filthy creature. Uses his garbage as a biological weapon
 25 10 4 8 7
 Giant Worm
-It's not pretty...especially from the front and back.
+It's not pretty...especially from the front and back
 30 4 4 1 1
-Name3
-Desc3
+Barbarian Klorg
+Not one for words, but he hits like a truck
 35 8 6 7 4
 Armsman
 Serves you right. And left.
 40 1 1 4 4
-Name4
-Desc4
+Drunken Apprentice
+Not quite a master, his random attacks are random and uncoordinated
 45 4 3 2 1
 Rolling Boulder
 "I told you not to take that statue..."
 50 0 5 0 5
-Name5
-Desc5
-55 0 0 1 3
-Name6
-Desc6
+Sumo Sam
+Strong, but can only attack in front of himself
+55 0 0 0 4
+Sponge-y Blob
+Has no motor functions, but its skin softens blows from enemies.
 60 0 0 0 0

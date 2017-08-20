@@ -10,10 +10,11 @@ import java.util.*;
  */
 public class Battlefield {
 
-	private Player player1;
-	private Player player2;
+	private Player human;
+	private Player computer;
 	private Node[] board;
 	private List<Card> deck;
+	private List<Card> discardPile;
 	private int turn;
 	
 	//Explicit private default constructor that prevents a null battlefield from being created
@@ -21,26 +22,27 @@ public class Battlefield {
 	}
 	
 	//Main constructor used for creating Battlefield objects
-	public Battlefield(Player player1, Player player2) throws IOException {
-		this.player1 = player1;
-		this.player2 = player2;
+	public Battlefield(Player human, Player computer) throws IOException {
+		this.human = human;
+		this.computer = computer;
 		board = new Node[25];
 		for (int i = 0; i < 25; i++) {
 			board[i] = new Node(i + 1);
 		}
 		deck = new ArrayList<Card>();
+		discardPile = new ArrayList<Card>();
 		initDatabase();
 		turn = 1;
 	}
 	
-	//Returns Player 1
-	public Player getPlayer1() {
-		return player1;
+	//Returns the human Player on this board
+	public Player getHumanPlayer() {
+		return human;
 	}
 	
-	//Returns Player 2
-	public Player getPlayer2() {
-		return player2;
+	//Returns the computer Player on this board
+	public Player getComputerPlayer() {
+		return computer;
 	}
 	
 	//Returns the node located at the given position on the board. The Node numbers increase from left to right, top
@@ -118,7 +120,6 @@ public class Battlefield {
 	}
 	
 	//Ends the turn and initiates all attacks
-	//ADD SUPPORT FOR REMOVING PLAYER HEALTH
 	public void endOfTurn() {
 		for (int i = 0; i < board.length; i++) {
 			Player owner = board[i].getOwner();
@@ -126,75 +127,97 @@ public class Battlefield {
 				Node nodeAbove = board[i - 5];
 				if (!nodeAbove.isEmpty() && nodeAbove.getOwner() != owner) {
 					nodeAbove.setCurrentHP(nodeAbove.getHP() - board[i].getUpperAP());
+					nodeAbove.owner.setHP(nodeAbove.owner.getHP() - board[i].getUpperAP());
 				}
 			}
 			if (i % 5 != 0) {
 				Node nodeLeft = board[i - 1];
 				if (!nodeLeft.isEmpty() && nodeLeft.getOwner() != owner) {
 					nodeLeft.setCurrentHP(nodeLeft.getHP() - board[i].getLeftAP());
+					nodeLeft.owner.setHP(nodeLeft.owner.getHP() - board[i].getLeftAP());
 				}
 			}
 			if ((i - 4) % 5 != 0) {
 				Node nodeRight = board[i + 1];
 				if (!nodeRight.isEmpty() && nodeRight.getOwner() != owner) {
 					nodeRight.setCurrentHP(nodeRight.getHP() - board[i].getRightAP());
+					nodeRight.owner.setHP(nodeRight.owner.getHP() - board[i].getRightAP());
 				}
 			}
 			if (i <= 19) {
 				Node nodeBelow = board[i + 5];
 				if (!nodeBelow.isEmpty() && nodeBelow.getOwner() != owner) {
 					nodeBelow.setCurrentHP(nodeBelow.getHP() - board[i].getLowerAP());
+					nodeBelow.owner.setHP(nodeBelow.owner.getHP() - board[i].getLowerAP());
 				}
+			}
+		}
+		for (int i = 0; i < 25; i++) {
+			if (!board[i].isEmpty() && board[i].getHP() <= 0) {
+				int currentHP = board[i].getHP();
+				board[i].getOwner().setHP(board[i].getOwner().getHP() + (0 - currentHP));
+				discardPile.add(board[i].removeCard());
 			}
 		}
 		turn++;
 	}
 	
+	//Calculates the damage that will be taken by a monster placed in a given space
+	public void calculateDamageTaken() {
+		
+	}
+	
 	//Returns all cards from the board as well as both players hands to the deck, and re-shuffles the deck
+	//FIX
 	public void resetBoard() {
 		for (int i = 1; i <= 25; i++) {
 			if (!getNode(i).isEmpty()) {
 				addCardToDeck(getNode(i).removeCard());
 			}
 		}
-		for (Card card : player1.getHand()) {
-			addCardToDeck(removeCardFromHand(card, player1));
+		for (Card card : human.getHand()) {
+			addCardToDeck(card);
 		}
-		for (Card card : player2.getHand()) {
-			addCardToDeck(removeCardFromHand(card, player2));
+		for (Card card : computer.getHand()) {
+			addCardToDeck(card);
 		}
+		for (Card card : discardPile) {
+			addCardToDeck(card);
+		}
+		human.getHand().clear();
+		computer.getHand().clear();
+		discardPile.clear();
 		Collections.shuffle(deck);
-		player1.setHP(200);
-		player2.setHP(200);
+		human.setHP(200);
+		computer.setHP(200);
 		turn = 1;
 	}
 	
 	//Returns the Player who won the game. Returns a new Player named "a Tie" if the game was a tie, and returns null if the game is not over.
 	public Player getWinner() {
-		if (player1.getHP() > 0 && player2.getHP() <= 0) {
-			return player2;
+		if (human.getHP() > 0 && computer.getHP() <= 0) {
+			return human;
 		}
-		if (player1.getHP() <= 0 && player2.getHP() > 0) {
-			return player2;
+		if (human.getHP() <= 0 && computer.getHP() > 0) {
+			return computer;
 		}
-		if (player1.getHP() <= 0 && player2.getHP() <= 0) {
+		if (human.getHP() <= 0 && computer.getHP() <= 0) {
 			return new Player("a Tie");
 		}
 		return null;
 	}
 	
-	
 	//Returns a String representation of the current status of the board
 	public String toString() {
 		String s = padString("Turn: " + turn, 131) + "\n";
-		String player1HP = player1.getName() + ": " + player1.getHP() + " HP";
-		String player2HP = player2.getName() + ": " + player2.getHP() + " HP";
-		s += player1HP;
-		int spacing = 131 - (player1HP.length() + player2HP.length());
+		String humanHP = human.getName() + ": " + human.getHP() + " HP";
+		String computerHP = computer.getName() + ": " + computer.getHP() + " HP";
+		s += humanHP;
+		int spacing = 131 - (humanHP.length() + computerHP.length());
 		for (int i = 0; i < spacing; i++) {
 			s += " ";
 		}
-		s += player2HP;
+		s += computerHP;
 		s += "\n\n" + border();
 		//Do the following for each level of the board
 		for (int i = 0; i < 5; i++) {
@@ -411,7 +434,7 @@ public class Battlefield {
 	 *
 	 * Author: Eric Wahlquist
 	 */
-	private class Node {
+	public class Node {
 		
 		private int nodeNumber;
 		private Card currentCard;

@@ -1,27 +1,27 @@
 Mace Spindu
 Spins a powerful mace with attack increasing in a clockwise direction.
 50 2 4 5 3
-Name
-Desc
+Champion Fencer
+A strong fighter, but cannot attack behind himself.
 55 10 10 0 10
-Name2
-Desc2
-60 1 5 4 7
-Name3
-Desc3
+Squeem
+It looks cute from far away, but unleashes a powerful damaging scream when approached.
+60 4 4 3 7
+Venomous Clam
+Spits its venom at enemies walking on top of it.
 65 10 0 1 1
-Name4
-Desc4
+Bladed Gymnast
+Spinning and flipping, it slices enemies as it performs.
 70 6 5 4 3
-Name5
-Desc5
+Cannon
+Shoots at an angle, damaging enemies above and in front of it.
 75 5 0 0 5
-Name6
-Desc6
+Electric Fence
+Durable, but has a low attack.
 80 2 2 2 2
-Name7
-Desc7
+Zim
+Strong and durable, but lacks the motivation to deal heavy damage.
 85 1 0 4 0
-Name8
-Desc8
+Rock
+Durable, but has no attack
 90 0 0 0 0
