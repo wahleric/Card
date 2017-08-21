@@ -56,68 +56,60 @@ public class CardBattle {
 	
 	//AI calculates best place to put cards
 	public static void computerTurn(Battlefield board) {
-		//Code for AI here
-		//Calculates the total damage taken by a monster if placed in a given node
-		int[] damageTaken = new int[25];
-		//Calculates the total number of enemies adjacent to a given node
-		int[] enemiesAdjacent = new int[25];
+		Card cardToPlay = null;
+		int nodeToPlay = -1;
+		int maxScore = -1;
 		for (int i = 1; i < 26; i++) {
-			if ((i - 1) > 4) {
-				Player ownerOfAboveSpace = board.getNode(i - 5).getOwner();
-				if (ownerOfAboveSpace == board.getHumanPlayer()) {
-					damageTaken[i - 1] += board.getCardAtNode(i - 5).getLowerAP();
-					enemiesAdjacent[i - 1]++;
+			Battlefield.Node currentNode = board.getNode(i);
+			if (currentNode.isEmpty()) {
+				for (Card card : board.getComputerPlayer().getHand()) {
+					int damageGiven = 0;
+					int damageTaken = 0;
+					int score;
+					//CALCUATIONS HERE
+					//Scan enemies above
+					if (i > 5) {
+						Battlefield.Node nodeAbove = board.getNode(i - 5);
+						if (!nodeAbove.isEmpty() && nodeAbove.getOwner() != board.getComputerPlayer()) {
+							damageGiven += Math.min(card.getUpperAP(), nodeAbove.getHP());
+							damageTaken += Math.min(nodeAbove.getLowerAP(), card.getMaxHP());
+						}
+					}
+					//Scan enemies to the left
+					if ((i - 1) % 5 != 0) {
+						Battlefield.Node nodeLeft = board.getNode(i - 1);
+						if (!nodeLeft.isEmpty() && nodeLeft.getOwner() != board.getComputerPlayer()) {
+							damageGiven += Math.min(card.getUpperAP(), nodeLeft.getHP());
+							damageTaken += Math.min(nodeLeft.getLowerAP(), card.getMaxHP());
+						}
+					}
+					//Scan enemies to the right
+					if ((i % 5) != 0) {
+						Battlefield.Node nodeRight = board.getNode(i + 1);
+						if (!nodeRight.isEmpty() && nodeRight.getOwner() != board.getComputerPlayer()) {
+							damageGiven += Math.min(card.getUpperAP(), nodeRight.getHP());
+							damageTaken += Math.min(nodeRight.getLowerAP(), card.getMaxHP());
+						}
+					}
+					//Scan enemies below
+					if (i < 21) {
+						Battlefield.Node nodeBelow = board.getNode(i + 5);
+						if (!nodeBelow.isEmpty() && nodeBelow.getOwner() != board.getComputerPlayer()) {
+							damageGiven += Math.min(card.getLowerAP(), nodeBelow.getHP());
+							damageTaken += Math.min(nodeBelow.getLowerAP(), card.getMaxHP());
+						}
+					}
+					score = damageGiven - damageTaken;
+					//CALCULATIONS OVER
+					if (score > maxScore) {
+						cardToPlay = card;
+						nodeToPlay = i;
+						maxScore = score;
+					}
 				}
 			}
-			if ((i - 1) % 5 != 0) {
-				Player ownerOfLeftSpace = board.getNode(i - 1).getOwner();
-				if (ownerOfLeftSpace == board.getHumanPlayer()) {
-					damageTaken[i - 1] += board.getCardAtNode(i - 1).getRightAP();
-					enemiesAdjacent[i - 1]++;
-				}
-			}
-			if (i % 5 != 0) {
-				Player ownerOfRightSpace = board.getNode(i + 1).getOwner();
-				if (ownerOfRightSpace == board.getHumanPlayer()) {
-					damageTaken[i - 1] += board.getCardAtNode(i + 1).getLeftAP();
-					enemiesAdjacent[i - 1]++;
-				}
-			}
-			if ((i - 1) < 20) {
-				Player ownerOfBelowSpace = board.getNode(i + 5).getOwner();
-				if (ownerOfBelowSpace == board.getHumanPlayer()) {
-					damageTaken[i - 1] += board.getCardAtNode(i + 5).getUpperAP();
-					enemiesAdjacent[i - 1]++;
-				}
-			}
 		}
-		double[] damageRatio = new double[25];
-		for (int i = 0; i < 25; i++) {
-			damageRatio[i] = (enemiesAdjacent[i] + 1) / (damageTaken[i] + 1);
-		}
-		double maxRatio = 0;
-		int indexOfNode = -1;
-		for (int i = 0; i < 25; i++) {
-			if (!board.getNode(i + 1).isEmpty()) {
-				damageRatio[i] = -1;
-			} else if (damageRatio[i] > maxRatio) {
-				maxRatio = damageRatio[i];
-				indexOfNode = i;
-			}
-		}
-		List<Integer> damageByCard = new ArrayList<Integer>();
-		for (Card card : board.getComputerPlayer().getHand()) {
-			damageByCard.add(card.getLeftAP() + card.getRightAP() + card.getUpperAP() + card.getLowerAP());
-		}
-		int maxDamage = 0;
-		int indexOfCard = -1;
-		for (Integer damage : damageByCard) {
-			if (damage > maxDamage) {
-				maxDamage = damage;
-				indexOfCard = damageByCard.indexOf(damage);
-			}
-		}
-		board.placeCard(board.getComputerPlayer(), board.getComputerPlayer().getHand().get(indexOfCard), indexOfNode + 1);
+		board.placeCard(board.getComputerPlayer(), cardToPlay, nodeToPlay);
 		updateBoard(board);
 		wait(1);
 	}
