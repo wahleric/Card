@@ -7,7 +7,7 @@
 public class Card {
 
 	private String name;
-	private String description;
+	private String type;
 	private int level;
 	private int maxHP;
 	private int upperAP;
@@ -20,9 +20,9 @@ public class Card {
 	}
 	
 	//Main constructor used for creating Card objects
-	public Card(String name, String description, int level, int hP, int upperAP, int lowerAP, int leftAP, int rightAP) {
+	public Card(String name, String type, int level, int hP, int upperAP, int lowerAP, int leftAP, int rightAP) {
 		this.name = name;
-		this.description = description;
+		this.type = type;
 		this.level = level;
 		this.maxHP = hP;
 		this.upperAP = upperAP;
@@ -36,9 +36,9 @@ public class Card {
 		return name;
 	}
 	
-	//Returns the description of the monster represented by this Card
-	public String getDescription() {
-		return description;
+	//Returns the type of the monster represented by this Card
+	public String getType() {
+		return type;
 	}
 	
 	//Returns the level of the monster represented by this Card
@@ -75,9 +75,9 @@ public class Card {
 		this.name = name;
 	}
 	
-	//Sets the description of the monster represented by this Card
-	public void setDescription(String description) {
-		this.description = description;
+	//Sets the type of the monster represented by this Card
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	//Sets the level of the monster represented by this Card
@@ -101,7 +101,7 @@ public class Card {
 	//Returns a string that displays the name and stats of the monster represented by this Card
 	public String toString() {
 		String s = name + ":\n\n";
-		s += description + "\n\n";
+		s += "Type: " + type + "\n";
 		s += "Monster level: " + level + "\n";
 		s += "Maximum HP: " + maxHP + "\n";
 		s += "Upper AP: " + upperAP + "\n";

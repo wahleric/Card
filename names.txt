@@ -1,0 +1,26 @@
+Alligator
+Anteater
+Armadillo
+Bear
+Bull
+Clown
+Cobra
+Cougar
+Cow
+Crocodile
+Elephant
+Giant Worm
+Giraffe
+Gorilla
+Hound
+Hornet
+Jaguar
+Lion
+Porcupine
+Rabbit
+Sloth
+Sponge
+Tarantula
+Tiger
+Wolf
+Wombat
