@@ -9,7 +9,7 @@ import java.util.*;
  * Author: Eric Wahlquist
  */
 public class Battlefield {
-
+	
 	private Player human;
 	private Player computer;
 	private Node[] board;
@@ -188,8 +188,8 @@ public class Battlefield {
 		computer.getHand().clear();
 		discardPile.clear();
 		Collections.shuffle(deck);
-		human.setHP(200);
-		computer.setHP(200);
+		human.setHP(Player.PLAYER_MAX_HP);
+		computer.setHP(Player.PLAYER_MAX_HP);
 		turn = 1;
 	}
 	
