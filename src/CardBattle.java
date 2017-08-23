@@ -31,14 +31,14 @@ public class CardBattle {
 				humanTurn(board, keyboard);
 				computerTurn(board);
 				board.endOfTurn();
-				wait(3);
+				wait(2);
 			}
 		} else { //Computer goes first
 			while (board.getWinner() == null) {
 				computerTurn(board);
 				humanTurn(board, keyboard);
 				board.endOfTurn();
-				wait(3);
+				wait(2);
 			}
 		}
 		Player winner = board.getWinner();
@@ -147,11 +147,11 @@ public class CardBattle {
 		Card card = human.getHand().get(cardNumber - 1);
 		System.out.println("Which space would you like to place the card in (1 - 25)?");
 		int nodeNumber = -1;
-		while (nodeNumber < 1  || nodeNumber > 25 || board.getCardAtNode(nodeNumber) != null) {
+		while (nodeNumber < 1  || nodeNumber > 25 || board.getNode(nodeNumber).getCard() != null) {
 			nodeNumber = keyboard.nextInt();
 			if (nodeNumber < 1  || nodeNumber > 25) {
 				System.out.println("Please enter a valid place number (1 - 25)");
-			} else if (board.getCardAtNode(nodeNumber) != null) {
+			} else if (board.getNode(nodeNumber).getCard() != null) {
 				System.out.println("Space is taken. Please enter a valid place number (1 - 25)");
 			}
 		}
@@ -160,7 +160,7 @@ public class CardBattle {
 	
 	//Takes a card from the deck and places it in a Player's hand
 	public static void drawCard(Battlefield board, Player player) {
-		board.addCardToHand(board.removeCardFromDeck(), player);
+		player.getHand().add(board.drawCard());
 	}
 	
 	public static void initialDraw(Battlefield board) {

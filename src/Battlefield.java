@@ -13,7 +13,7 @@ public class Battlefield {
 	private Player human;
 	private Player computer;
 	private Node[] board;
-	private List<Card> deck;
+	private Deck deck;
 	private List<Card> discardPile;
 	private int turn;
 	
@@ -29,9 +29,8 @@ public class Battlefield {
 		for (int i = 0; i < 25; i++) {
 			board[i] = new Node(i + 1);
 		}
-		deck = new ArrayList<Card>();
+		deck = new Deck();
 		discardPile = new ArrayList<Card>();
-		initDatabase();
 		turn = 1;
 	}
 	
@@ -55,61 +54,41 @@ public class Battlefield {
 		return board[nodeNumber];
 	}
 	
-	public Card getCardAtNode(int nodeNumber) {
-		nodeNumber--;
-		if (nodeNumber < 0 || nodeNumber > 24) {
-			throw new IllegalArgumentException("Invalid: Node does not exist");
-		}
-		return board[nodeNumber].getCard();
-	}
-	
-	//Returns true of the deck of all monster cards to draw from is empty; false otherwise
-	public boolean deckIsEmpty() {
-		return deck.isEmpty();
-	}
-	
 	//Removes a card from the deck
-	public Card removeCardFromDeck() {
+	public Card drawCard() {
 		if (deckIsEmpty()) {
 			throw new IllegalArgumentException("Invalid: Deck is empty");
 		}
-		return deck.remove(0);
+		return deck.drawCard();
 	}
 	
 	//Adds a card to the deck
-	public void addCardToDeck(Card card) {
-		deck.add(card);
+	private void addCard(Card card) {
+		deck.addCard(card);
 	}
+	
+	//Returns true of the deck of all monster cards to draw from is empty; false otherwise
+		public boolean deckIsEmpty() {
+			return deck.isEmpty();
+		}
 	
 	//Places a card in a Node on the Battlefield. Returns true if successful, false otherwise.
 	public boolean placeCard(Player player, Card card, int nodeNumber) {
 		if (getNode(nodeNumber).isEmpty()) {
 			getNode(nodeNumber).setCurrentCard(card);
 			getNode(nodeNumber).setOwner(player);
-			removeCardFromHand(card, player);
+			if (player.getHand().contains(card)) {
+				player.getHand().remove(card);
+			} else {
+				throw new IllegalArgumentException("Invalid: Card is not in hand");
+			}
 			return true;
 		}
 		return false;
 	}
 	
-	//Adds a Card to a Player's hand
-	public void addCardToHand(Card card, Player player) {
-		player.getHand().add(card);
-	}
-	
-	//Removes a Card from a Player's hand
-	public Card removeCardFromHand(Card card, Player player) {
-		for (Card cardToRemove : player.getHand()) {
-			if (cardToRemove == card) {
-				player.getHand().remove(card);
-				return card;
-			}
-		}
-		throw new IllegalArgumentException("Invalid: Card is not in hand");
-	}
-	
 	//Removes a Card from a Node on the Battlefield and returns it
-	public Card removeCard(int nodeNumber) {
+	private Card removeCard(int nodeNumber) {
 		if (board[nodeNumber - 1].isEmpty()) {
 			throw new IllegalArgumentException("Invalid: Node is empty");
 		}
@@ -127,67 +106,56 @@ public class Battlefield {
 				Node nodeAbove = board[i - 5];
 				if (!nodeAbove.isEmpty() && nodeAbove.getOwner() != owner) {
 					nodeAbove.setCurrentHP(nodeAbove.getHP() - board[i].getUpperAP());
-					nodeAbove.owner.setHP(nodeAbove.owner.getHP() - board[i].getUpperAP());
 				}
 			}
 			if (i % 5 != 0) {
 				Node nodeLeft = board[i - 1];
 				if (!nodeLeft.isEmpty() && nodeLeft.getOwner() != owner) {
 					nodeLeft.setCurrentHP(nodeLeft.getHP() - board[i].getLeftAP());
-					nodeLeft.owner.setHP(nodeLeft.owner.getHP() - board[i].getLeftAP());
 				}
 			}
 			if ((i - 4) % 5 != 0) {
 				Node nodeRight = board[i + 1];
 				if (!nodeRight.isEmpty() && nodeRight.getOwner() != owner) {
 					nodeRight.setCurrentHP(nodeRight.getHP() - board[i].getRightAP());
-					nodeRight.owner.setHP(nodeRight.owner.getHP() - board[i].getRightAP());
 				}
 			}
 			if (i <= 19) {
 				Node nodeBelow = board[i + 5];
 				if (!nodeBelow.isEmpty() && nodeBelow.getOwner() != owner) {
 					nodeBelow.setCurrentHP(nodeBelow.getHP() - board[i].getLowerAP());
-					nodeBelow.owner.setHP(nodeBelow.owner.getHP() - board[i].getLowerAP());
 				}
 			}
 		}
 		for (int i = 0; i < 25; i++) {
 			if (!board[i].isEmpty() && board[i].getHP() <= 0) {
-				int currentHP = board[i].getHP();
-				board[i].getOwner().setHP(board[i].getOwner().getHP() + (0 - currentHP));
+				board[i].getOwner().setHP(board[i].getOwner().getHP() - board[i].getCard().getMaxHP());
 				discardPile.add(board[i].removeCard());
 			}
 		}
 		turn++;
 	}
 	
-	//Calculates the damage that will be taken by a monster placed in a given space
-	public void calculateDamageTaken() {
-		
-	}
-	
-	//Returns all cards from the board as well as both players hands to the deck, and re-shuffles the deck
-	//FIX
+	//Brings the board back to a clean state
 	public void resetBoard() {
 		for (int i = 1; i <= 25; i++) {
 			if (!getNode(i).isEmpty()) {
-				addCardToDeck(getNode(i).removeCard());
+				addCard(getNode(i).removeCard());
 			}
 		}
 		for (Card card : human.getHand()) {
-			addCardToDeck(card);
+			deck.addCard(card);
 		}
 		for (Card card : computer.getHand()) {
-			addCardToDeck(card);
+			deck.addCard(card);
 		}
 		for (Card card : discardPile) {
-			addCardToDeck(card);
+			deck.addCard(card);
 		}
 		human.getHand().clear();
 		computer.getHand().clear();
 		discardPile.clear();
-		Collections.shuffle(deck);
+		deck.shuffle();;
 		human.setHP(Player.PLAYER_MAX_HP);
 		computer.setHP(Player.PLAYER_MAX_HP);
 		turn = 1;
@@ -386,46 +354,6 @@ public class Battlefield {
 			s += " ";
 		}
 		return s;
-	}
-	
-	//Initializes the database of all monster cards by reading from *monsters.txt and loads them into the game 
-	//when this Battlefield is created
-	private void initDatabase() throws IOException {
-		for (int i = 1; i <= 5; i++) {
-			File database = new File(i + "monsters.txt");
-			Scanner scanner = new Scanner(database);
-			while (scanner.hasNextLine()) {
-				String name = scanner.nextLine();
-				String description = scanner.nextLine();
-				String stats = scanner.nextLine();
-				Scanner statScan = new Scanner(stats);
-				int level = i;
-				int hP = statScan.nextInt();
-				int upperAP = statScan.nextInt();
-				int lowerAP = statScan.nextInt();
-				int leftAP = statScan.nextInt();
-				int rightAP = statScan.nextInt();
-				statScan.close();
-				if (description.length() > 40) {
-					String newDescription = "";
-					String tempString = "";
-					Scanner lineScan = new Scanner(description);
-					while (lineScan.hasNext()) {
-						tempString += lineScan.next() + " ";
-						if (!lineScan.hasNext()) {
-							newDescription += tempString;
-						} else if (tempString.length() > 40) {
-							newDescription += tempString + "\n";
-							tempString = "";
-						}
-					}
-					description = newDescription;
-					lineScan.close();
-				}
-				deck.add(new Card(name, description, level, hP, upperAP, lowerAP, leftAP, rightAP));
-			}
-			scanner.close();
-		}
 	}
 	
 	/*
