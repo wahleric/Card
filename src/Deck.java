@@ -134,7 +134,7 @@ public class Deck {
 		int lowerAP = r.nextInt(10) * card.getLevel();
 		int leftAP = r.nextInt(10) * card.getLevel();
 		int rightAP = r.nextInt(10) * card.getLevel();
-		//Durable creatures have double HP and halved AP
+		//Durable creatures have double HP and half AP
 		if (card.getType().equals("Durable")) {
 			maxHP *= 2;
 			upperAP /= 2;
@@ -142,13 +142,21 @@ public class Deck {
 			leftAP /= 2;
 			rightAP /= 2;
 		}
-		//Impaired creatures have all stats halved
+		//Impaired creatures have all stats quartered
 		if (card.getType().equals("Impaired")) {
+			maxHP /= 4;
+			upperAP /= 4;
+			lowerAP /= 4;
+			leftAP /= 4;
+			rightAP /= 4;
+		}
+		//Feral creatures have half HP and double AP
+		if (card.getType().equals("Feral")) {
 			maxHP /= 2;
-			upperAP /= 2;
-			lowerAP /= 2;
-			leftAP /= 2;
-			rightAP /= 2;
+			upperAP *= 2;
+			lowerAP *= 2;
+			leftAP *= 2;
+			rightAP *= 2;
 		}
 		card.setMaxHP(maxHP);
 		card.setAP(upperAP, lowerAP, leftAP, rightAP);

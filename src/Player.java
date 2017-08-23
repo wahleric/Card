@@ -6,6 +6,8 @@ import java.util.*;
  * Author: Eric Wahlquist
  */
 public class Player {
+	
+	public static final int PLAYER_MAX_HP = 500;
 
 	private String name;
 	private List<Card> hand;
@@ -20,7 +22,7 @@ public class Player {
 	public Player(String name) {
 		this.name = name;
 		hand = new ArrayList<Card>();
-		hP = 200;
+		hP = PLAYER_MAX_HP;
 	}
 	
 	//Returns the name of this Player
