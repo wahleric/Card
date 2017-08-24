@@ -12,10 +12,10 @@ public class Battlefield {
 	
 	private Player human;
 	private Player computer;
+	private int turn;
 	private Node[] board;
 	private Deck deck;
 	private List<Card> discardPile;
-	private int turn;
 	
 	//Explicit private default constructor that prevents a null battlefield from being created
 	private Battlefield() {
@@ -42,6 +42,11 @@ public class Battlefield {
 	//Returns the computer Player on this board
 	public Player getComputerPlayer() {
 		return computer;
+	}
+	
+	//Returns the current turn number
+	public int getTurn() {
+		return turn;
 	}
 	
 	//Returns the node located at the given position on the board. The Node numbers increase from left to right, top

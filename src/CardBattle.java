@@ -10,6 +10,8 @@ import java.io.*;
 
 
 public class CardBattle {
+	
+	public static final int INITIAL_DEAL_NUMBER = 10;
 
 	//Main method runs game
 	public static void main(String[] args) throws IOException {
@@ -114,10 +116,8 @@ public class CardBattle {
 		wait(1);
 	}
 	
+	//Prints the current status of the board to the console
 	public static void updateBoard(Battlefield board) {
-		for (int i = 0; i < 50; i++) {
-			System.out.println("");
-		}
 		System.out.println(board.toString());
 	}
 	
@@ -127,12 +127,13 @@ public class CardBattle {
 		for (Card card : board.getHumanPlayer().getHand()) {
 			System.out.print(board.getHumanPlayer().getHand().indexOf(card) + 1 + ". ");
 			System.out.println(card.getName());
-			System.out.print("Level: " + card.getLevel() + " HP: " + card.getMaxHP() + " Upper AP: " + card.getUpperAP());
+			System.out.print("Level: " + card.getLevel() + "Type" + card.getType() + " HP: " + card.getMaxHP() + " Upper AP: " + card.getUpperAP());
 			System.out.println(" Lower AP: " + card.getLowerAP() + " Left AP: " + card.getLeftAP() + " Right AP: " + card.getRightAP());
 		}
 		System.out.println("");
 	}
 	
+	//Prompts the user for a Card to place and a space to place it in
 	public static void chooseAndPlaceCard(Scanner keyboard, Battlefield board) {
 		keyboard.reset();
 		Player human = board.getHumanPlayer();
@@ -163,8 +164,9 @@ public class CardBattle {
 		player.getHand().add(board.drawCard());
 	}
 	
+	//Draws INITIAL_DEAL_NUMBER Cards for each player
 	public static void initialDraw(Battlefield board) {
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < INITIAL_DEAL_NUMBER; i++) {
 			drawCard(board, board.getHumanPlayer());
 			drawCard(board, board.getComputerPlayer());
 		}
