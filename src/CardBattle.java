@@ -8,10 +8,9 @@ import java.io.*;
  * Author: Eric Wahlquist
  */
 
-
 public class CardBattle {
 	
-	public static final int INITIAL_DEAL_NUMBER = 10;
+	public static final int INITIAL_DEAL_NUMBER = 5;
 
 	//Main method runs game
 	public static void main(String[] args) throws IOException {
@@ -61,51 +60,51 @@ public class CardBattle {
 		Card cardToPlay = null;
 		int nodeToPlay = -1;
 		int maxScore = -1;
-		for (int i = 1; i < 26; i++) {
-			Battlefield.Node currentNode = board.getNode(i);
-			if (currentNode.isEmpty()) {
+		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
+			Card cardInNode = board.getCardAtNode(nodeNumber);
+			if (cardInNode == null) {
 				for (Card card : board.getComputerPlayer().getHand()) {
 					int damageGiven = 0;
 					int damageTaken = 0;
 					int score;
 					//CALCUATIONS HERE
 					//Scan enemies above
-					if (i > 5) {
-						Battlefield.Node nodeAbove = board.getNode(i - 5);
-						if (!nodeAbove.isEmpty() && nodeAbove.getOwner() != board.getComputerPlayer()) {
-							damageGiven += Math.min(card.getUpperAP(), nodeAbove.getHP());
-							damageTaken += Math.min(nodeAbove.getLowerAP(), card.getMaxHP());
+					if (nodeNumber > 5) {
+						Card cardAbove = board.getCardAtNode(nodeNumber - 5);
+						if (cardAbove != null && cardAbove.getOwner() != board.getComputerPlayer()) {
+							damageGiven += Math.min(card.getCurrentUpperAP(), cardAbove.getCurrentHP());
+							damageTaken += Math.min(cardAbove.getCurrentLowerAP(), card.getCurrentHP());
 						}
 					}
 					//Scan enemies to the left
-					if ((i - 1) % 5 != 0) {
-						Battlefield.Node nodeLeft = board.getNode(i - 1);
-						if (!nodeLeft.isEmpty() && nodeLeft.getOwner() != board.getComputerPlayer()) {
-							damageGiven += Math.min(card.getUpperAP(), nodeLeft.getHP());
-							damageTaken += Math.min(nodeLeft.getLowerAP(), card.getMaxHP());
+					if ((nodeNumber - 1) % 5 != 0) {
+						Card cardLeft = board.getCardAtNode(nodeNumber - 1);
+						if (cardLeft != null && cardLeft.getOwner() != board.getComputerPlayer()) {
+							damageGiven += Math.min(card.getCurrentLeftAP(), cardLeft.getCurrentHP());
+							damageTaken += Math.min(cardLeft.getCurrentRightAP(), card.getCurrentHP());
 						}
 					}
 					//Scan enemies to the right
-					if ((i % 5) != 0) {
-						Battlefield.Node nodeRight = board.getNode(i + 1);
-						if (!nodeRight.isEmpty() && nodeRight.getOwner() != board.getComputerPlayer()) {
-							damageGiven += Math.min(card.getUpperAP(), nodeRight.getHP());
-							damageTaken += Math.min(nodeRight.getLowerAP(), card.getMaxHP());
+					if ((nodeNumber % 5) != 0) {
+						Card cardRight = board.getCardAtNode(nodeNumber + 1);
+						if (cardRight != null && cardRight.getOwner() != board.getComputerPlayer()) {
+							damageGiven += Math.min(card.getCurrentRightAP(), cardRight.getCurrentHP());
+							damageTaken += Math.min(cardRight.getCurrentLeftAP(), card.getCurrentHP());
 						}
 					}
 					//Scan enemies below
-					if (i < 21) {
-						Battlefield.Node nodeBelow = board.getNode(i + 5);
-						if (!nodeBelow.isEmpty() && nodeBelow.getOwner() != board.getComputerPlayer()) {
-							damageGiven += Math.min(card.getLowerAP(), nodeBelow.getHP());
-							damageTaken += Math.min(nodeBelow.getLowerAP(), card.getMaxHP());
+					if (nodeNumber < 21) {
+						Card cardBelow = board.getCardAtNode(nodeNumber + 5);
+						if (cardBelow != null && cardBelow.getOwner() != board.getComputerPlayer()) {
+							damageGiven += Math.min(card.getCurrentLowerAP(), cardBelow.getCurrentHP());
+							damageTaken += Math.min(cardBelow.getCurrentUpperAP(), card.getCurrentHP());
 						}
 					}
 					score = damageGiven - damageTaken;
 					//CALCULATIONS OVER
 					if (score > maxScore) {
 						cardToPlay = card;
-						nodeToPlay = i;
+						nodeToPlay = nodeNumber;
 						maxScore = score;
 					}
 				}
@@ -118,7 +117,7 @@ public class CardBattle {
 	
 	//Prints the current status of the board to the console
 	public static void updateBoard(Battlefield board) {
-		System.out.println(board.toString());
+		System.out.println(board);
 	}
 	
 	//Shows the human's cards including names and stats
@@ -127,8 +126,8 @@ public class CardBattle {
 		for (Card card : board.getHumanPlayer().getHand()) {
 			System.out.print(board.getHumanPlayer().getHand().indexOf(card) + 1 + ". ");
 			System.out.println(card.getName());
-			System.out.print("Level: " + card.getLevel() + "Type" + card.getType() + " HP: " + card.getMaxHP() + " Upper AP: " + card.getUpperAP());
-			System.out.println(" Lower AP: " + card.getLowerAP() + " Left AP: " + card.getLeftAP() + " Right AP: " + card.getRightAP());
+			System.out.print("Level: " + card.getLevel() + " Type: " + card.getType() + " HP: " + card.getMaxHP() + " Upper AP: " + card.getCurrentUpperAP());
+			System.out.println(" Lower AP: " + card.getCurrentLowerAP() + " Left AP: " + card.getCurrentLeftAP() + " Right AP: " + card.getCurrentRightAP());
 		}
 		System.out.println("");
 	}
@@ -148,11 +147,11 @@ public class CardBattle {
 		Card card = human.getHand().get(cardNumber - 1);
 		System.out.println("Which space would you like to place the card in (1 - 25)?");
 		int nodeNumber = -1;
-		while (nodeNumber < 1  || nodeNumber > 25 || board.getNode(nodeNumber).getCard() != null) {
+		while (nodeNumber < 1  || nodeNumber > 25 || board.getCardAtNode(nodeNumber) != null) {
 			nodeNumber = keyboard.nextInt();
 			if (nodeNumber < 1  || nodeNumber > 25) {
 				System.out.println("Please enter a valid place number (1 - 25)");
-			} else if (board.getNode(nodeNumber).getCard() != null) {
+			} else if (board.getCardAtNode(nodeNumber) != null) {
 				System.out.println("Space is taken. Please enter a valid place number (1 - 25)");
 			}
 		}
@@ -161,7 +160,7 @@ public class CardBattle {
 	
 	//Takes a card from the deck and places it in a Player's hand
 	public static void drawCard(Battlefield board, Player player) {
-		player.getHand().add(board.drawCard());
+		board.drawCard(player);
 	}
 	
 	//Draws INITIAL_DEAL_NUMBER Cards for each player

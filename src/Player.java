@@ -50,9 +50,9 @@ public class Player {
 		this.hP = hP;
 	}
 	
-	//Returns a string that displays this Player's name as well as win count
+	//Returns a string that displays this Player's name as well as HP
 	public String toString() {
-		return name;
+		return name + ": " + hP + "/" + PLAYER_MAX_HP + " HP";
 	}
 	
 }

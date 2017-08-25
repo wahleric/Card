@@ -24,7 +24,7 @@ public class Deck {
 	private List<String> hotAdj;
 	private List<String> coldAdj;
 	
-	//Creates a Deck with the given number of cards, each with randomly generated names and stats
+	//Creates a Deck of Cards, each with randomly generated names and stats
 	public Deck() throws IOException {
 		deck = new ArrayList<Card>();
 		names = new ArrayList<String>();
@@ -68,12 +68,13 @@ public class Deck {
 		readFromAdj();
 		readFromNames();
 		for (int i = 0; i < NUMBER_OF_CARDS; i++) {
-			Card card = new Card("", "", 0, 0, 0, 0, 0, 0);
+			Card card = new Card("", "", 0, 0, 0, 0, 0, 0, null);
 			pickTypeAndAdjective(card);
 			pickName(card);
 			Random level = new Random();
 			card.setLevel(level.nextInt(5) + 1);
 			pickStats(card);
+			card.resetCard();
 			addCard(card);
 		}
 	}
@@ -159,7 +160,7 @@ public class Deck {
 			rightAP *= 2;
 		}
 		card.setMaxHP(maxHP);
-		card.setAP(upperAP, lowerAP, leftAP, rightAP);
+		card.setInitialAP(upperAP, lowerAP, leftAP, rightAP);
 	}
 	
 	//Private helper method for generateDeck reads adjectives from adjAndType.txt file and places them in their appropriate List

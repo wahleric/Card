@@ -10,25 +10,32 @@ public class Card {
 	private String type;
 	private int level;
 	private int maxHP;
-	private int upperAP;
-	private int lowerAP;
-	private int leftAP;
-	private int rightAP;
+	private int initialUpperAP;
+	private int initialLowerAP;
+	private int initialLeftAP;
+	private int initialRightAP;
+	
+	private int currentHP;
+	private int currentUpperAP;
+	private int currentLowerAP;
+	private int currentLeftAP;
+	private int currentRightAP;
+	private Player owner;
 	
 	//Explicit private default constructor that prevents invalid Cards from being created
 	private Card() {
 	}
 	
 	//Main constructor used for creating Card objects
-	public Card(String name, String type, int level, int hP, int upperAP, int lowerAP, int leftAP, int rightAP) {
-		this.name = name;
-		this.type = type;
-		this.level = level;
-		this.maxHP = hP;
-		this.upperAP = upperAP;
-		this.lowerAP = lowerAP;
-		this.leftAP = leftAP;
-		this.rightAP = rightAP;
+	public Card(String name, String type, int level, int hP, int upperAP, int lowerAP, int leftAP, int rightAP, Player owner) {
+		setName(name);
+		setType(type);
+		setLevel(level);
+		setMaxHP(hP);
+		setInitialAP(upperAP, lowerAP, leftAP, rightAP);
+		setCurrentHP(maxHP);
+		setCurrentAP(upperAP, lowerAP, leftAP, rightAP);
+		setOwner(owner);
 	}
 	
 	//Returns the name of the monster represented by this Card
@@ -50,24 +57,54 @@ public class Card {
 		return maxHP;
 	}
 	
-	//Returns the upper AP (attack points) of the monster represented by this Card
-	public int getUpperAP() {
-		return upperAP;
+	//Returns the initial upper AP (attack points) of the monster represented by this Card
+	public int getInitialUpperAP() {
+		return initialUpperAP;
 	}
 	
-	//Returns the lower AP (attack points) of the monster represented by this Card
-	public int getLowerAP() {
-		return lowerAP;
+	//Returns the initial lower AP (attack points) of the monster represented by this Card
+	public int getInitialLowerAP() {
+		return initialLowerAP;
 	}
 	
-	//Returns the left AP (attack points) of the monster represented by this Card
-	public int getLeftAP() {
-		return leftAP;
+	//Returns the initial left AP (attack points) of the monster represented by this Card
+	public int getInitialLeftAP() {
+		return initialLeftAP;
 	}
 	
-	//Returns the right AP (attack points) of the monster represented by this Card
-	public int getRightAP() {
-		return rightAP;
+	//Returns the initial right AP (attack points) of the monster represented by this Card
+	public int getInitialRightAP() {
+		return initialRightAP;
+	}
+	
+	//Returns the current HP of the monster represented by this Card
+	public int getCurrentHP() {
+		return currentHP;
+	}
+	
+	//Returns the current upper AP of the monster represented by this Card
+	public int getCurrentUpperAP() {
+		return currentUpperAP;
+	}
+	
+	//Returns the current lower AP of the monster represented by this Card
+	public int getCurrentLowerAP() {
+		return currentLowerAP;
+	}
+	
+	//Returns the current left AP of the monster represented by this Card
+	public int getCurrentLeftAP() {
+		return currentLeftAP;
+	}
+	
+	//Returns the current right AP of the monster represented by this Card
+	public int getCurrentRightAP() {
+		return currentRightAP;
+	}
+	
+	//Returns the Player that owns this Card
+	public Player getOwner() {
+		return owner;
 	}
 	
 	//Sets the name of the monster represented by this Card
@@ -91,11 +128,36 @@ public class Card {
 	}
 	
 	//Sets the AP (attack points) of the monster represented by this Card
-	public void setAP(int upperAP, int lowerAP, int leftAP, int rightAP) {
-		this.upperAP = upperAP;
-		this.lowerAP = lowerAP;
-		this.leftAP = leftAP;
-		this.rightAP = rightAP;
+	public void setInitialAP(int initialUpperAP, int initialLowerAP, int initialLeftAP, int initialRightAP) {
+		this.initialUpperAP = initialUpperAP;
+		this.initialLowerAP = initialLowerAP;
+		this.initialLeftAP = initialLeftAP;
+		this.initialRightAP = initialRightAP;
+	}
+	
+	//Sets the current HP (health points) of the monster represented by this card
+	public void setCurrentHP(int currentHP) {
+		this.currentHP = currentHP;
+	}
+	
+	//Sets the current AP (attack points) of the monster represented by this Card
+	public void setCurrentAP(int currentUpperAP, int currentLowerAP, int currentLeftAP, int currentRightAP) {
+		this.currentUpperAP = currentUpperAP;
+		this.currentLowerAP = currentLowerAP;
+		this.currentLeftAP = currentLeftAP;
+		this.currentRightAP = currentRightAP;
+	}
+	
+	//Sets the current owner of this Card
+	public void setOwner(Player owner) {
+		this.owner = owner;
+	}
+	
+	//Resets all current stats to their initial numbers and clears the owner
+	public void resetCard() {
+		setCurrentHP(maxHP);
+		setCurrentAP(initialUpperAP, initialLowerAP, initialLeftAP, initialRightAP);
+		setOwner(null);
 	}
 	
 	//Returns a string that displays the name and stats of the monster represented by this Card
@@ -103,11 +165,11 @@ public class Card {
 		String s = name + ":\n\n";
 		s += "Type: " + type + "\n";
 		s += "Monster level: " + level + "\n";
-		s += "Maximum HP: " + maxHP + "\n";
-		s += "Upper AP: " + upperAP + "\n";
-		s += "Lower AP: " + lowerAP + "\n";
-		s += "Left AP: " + leftAP + "\n";
-		s += "Right AP: " + rightAP + "\n";
+		s += "Maximum HP: " + currentHP + "\n";
+		s += "Upper AP: " + currentUpperAP + "\n";
+		s += "Lower AP: " + currentLowerAP + "\n";
+		s += "Left AP: " + currentLeftAP + "\n";
+		s += "Right AP: " + currentRightAP + "\n";
 		return s;
 	}
 }
