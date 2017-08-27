@@ -10,7 +10,7 @@ import java.io.*;
 
 public class CardBattle {
 	
-	public static final int INITIAL_DEAL_NUMBER = 5;
+	public static final int INITIAL_DEAL_NUMBER = 10;
 
 	//Main method runs game
 	public static void main(String[] args) throws IOException {
@@ -27,10 +27,12 @@ public class CardBattle {
 	public static void gameLoop(Battlefield board, Scanner keyboard) {
 		board.resetBoard();
 		initialDraw(board);
+		updateBoard(board);
 		if (rollDice()) { //Human goes first
 			while (board.getWinner() == null) {
 				humanTurn(board, keyboard);
 				computerTurn(board);
+				checkImpairedBonus(board);
 				board.endOfTurn();
 				wait(2);
 			}
@@ -38,6 +40,7 @@ public class CardBattle {
 			while (board.getWinner() == null) {
 				computerTurn(board);
 				humanTurn(board, keyboard);
+				checkImpairedBonus(board);
 				board.endOfTurn();
 				wait(2);
 			}
@@ -52,6 +55,7 @@ public class CardBattle {
 		showCards(board);
 		chooseAndPlaceCard(keyboard, board);
 		updateBoard(board);
+		drawCard(board, board.getHumanPlayer());
 		wait(1);
 	}
 	
@@ -110,8 +114,9 @@ public class CardBattle {
 				}
 			}
 		}
-		board.placeCard(board.getComputerPlayer(), cardToPlay, nodeToPlay);
+		//board.placeCard(board.getComputerPlayer(), cardToPlay, nodeToPlay);
 		updateBoard(board);
+		drawCard(board, board.getComputerPlayer());
 		wait(1);
 	}
 	
@@ -139,23 +144,49 @@ public class CardBattle {
 		int cardNumber = -1;
 		System.out.println("Which card would you like to place (enter the number)?");
 		while (cardNumber < 1 || cardNumber > human.getHand().size()) {
-			cardNumber = keyboard.nextInt();
+			try {
+				cardNumber = keyboard.nextInt();
+			} catch (InputMismatchException noInt) {
+				keyboard.next();
+			}
 			if (cardNumber < 1 || cardNumber > human.getHand().size()) {
 				System.out.println("Please enter a valid card number (1 - " + human.getHand().size() + ")");
 			}
 		}
 		Card card = human.getHand().get(cardNumber - 1);
-		System.out.println("Which space would you like to place the card in (1 - 25)?");
+		System.out.println("Which node would you like to place the card in (1 - 25)?");
 		int nodeNumber = -1;
 		while (nodeNumber < 1  || nodeNumber > 25 || board.getCardAtNode(nodeNumber) != null) {
-			nodeNumber = keyboard.nextInt();
+			try {
+				nodeNumber = keyboard.nextInt();
+			} catch (InputMismatchException noInt){
+				keyboard.next();
+			}
 			if (nodeNumber < 1  || nodeNumber > 25) {
-				System.out.println("Please enter a valid place number (1 - 25)");
+				System.out.println("Please enter a valid node number (1 - 25)");
 			} else if (board.getCardAtNode(nodeNumber) != null) {
-				System.out.println("Space is taken. Please enter a valid place number (1 - 25)");
+				System.out.println("Node is occupied. Please enter a different valid node number (1 - 25)");
 			}
 		}
 		board.placeCard(human, card, nodeNumber);
+	}
+	
+	//Randomly generates a bonus for any impaired monsters on the board
+	public static void checkImpairedBonus(Battlefield board) {
+		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
+			Card card = board.getCardAtNode(nodeNumber);
+			if (card != null && card.getType().equals("Impaired")) {
+				Random r = new Random();
+				if (r.nextDouble() > 0.7) {
+					Card cardToAdd = board.drawCard(null);
+					System.out.println("A " + cardToAdd.getName() + " sees the impaired " + card.getName() + " and comes to its aid!");
+					card.setCurrentHP(card.getCurrentHP() + (cardToAdd.getMaxHP() / 2));
+					card.setCurrentAP(card.getCurrentUpperAP() + (cardToAdd.getCurrentUpperAP() / 2), card.getCurrentLowerAP() + (cardToAdd.getCurrentLowerAP() / 2), 
+							card.getCurrentLeftAP() + (cardToAdd.getCurrentLeftAP() / 2), card.getCurrentRightAP() + (cardToAdd.getCurrentRightAP() / 2));
+					board.discard(cardToAdd);
+				}
+			}
+		}
 	}
 	
 	//Takes a card from the deck and places it in a Player's hand
@@ -197,13 +228,13 @@ public class CardBattle {
 		String answer = keyboard.nextLine();
 		while (!(answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("n"))) {
 			System.out.println("Please type y for \"yes\" or n for \"no\". Would you like to read the instructions (y/n)?");
-			answer = keyboard.next();
+			answer = keyboard.nextLine();
 		}
 		if (answer.equalsIgnoreCase("y")) {
 			instructions();
 			pressEnterToContinue();
 		}
-		System.out.println("What is your name?\n");
+		System.out.println("What is your name?");
 		String name = keyboard.nextLine();
 		return new Player(name);
 	}

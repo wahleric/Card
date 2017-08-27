@@ -22,6 +22,9 @@ public class Card {
 	private int currentRightAP;
 	private Player owner;
 	
+	//Keeps track of whether this card is contaminated (was attacked by a toxic creature), and how many more turns are left.
+	int contaminatedTurnsLeft;
+	
 	//Explicit private default constructor that prevents invalid Cards from being created
 	private Card() {
 	}
@@ -36,6 +39,7 @@ public class Card {
 		setCurrentHP(maxHP);
 		setCurrentAP(upperAP, lowerAP, leftAP, rightAP);
 		setOwner(owner);
+		setContaminatedTurnsLeft(0);
 	}
 	
 	//Returns the name of the monster represented by this Card
@@ -107,6 +111,11 @@ public class Card {
 		return owner;
 	}
 	
+	//Returns the number of turns left on this Card's contamination status
+	public int getContaminatedTurnsLeft() {
+		return contaminatedTurnsLeft;
+	}
+	
 	//Sets the name of the monster represented by this Card
 	public void setName(String name) {
 		this.name = name;
@@ -153,11 +162,17 @@ public class Card {
 		this.owner = owner;
 	}
 	
+	//Sets this Card to be contaminated (was hit by a toxic monster) until a given turn number
+	public void setContaminatedTurnsLeft(int numberOfTurns) {
+		contaminatedTurnsLeft = numberOfTurns;
+	}
+	
 	//Resets all current stats to their initial numbers and clears the owner
 	public void resetCard() {
 		setCurrentHP(maxHP);
 		setCurrentAP(initialUpperAP, initialLowerAP, initialLeftAP, initialRightAP);
 		setOwner(null);
+		setContaminatedTurnsLeft(0);
 	}
 	
 	//Returns a string that displays the name and stats of the monster represented by this Card

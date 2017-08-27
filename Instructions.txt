@@ -4,14 +4,29 @@
 
 Each monster card consists of:
 
-Name: The name of the monster
-Description: A short description of the monster
+Name: The name of the monster.
+Type: The category this monster belongs to.
 Level: The power ranking of this monster from 1-5, with level 1 being the weakest and level 5 being the strongest.
 Max HP (Health points): The total amount of damage the monster can take before it is killed.
 Upper AP (Attack power): The amount of damage done to any enemy monster cards placed directly above the monster.
 Lower AP (Attack power): The amount of damage done to any enemy monster cards placed directly below the monster.
 Left AP (Attack power): The amount of damage done to any enemy monster cards placed directly left of the monster.
 Right AP (Attack power): The amount of damage done to any enemy monster cards placed directly right of the monster.
+
+--------------------------------------------------------------------------------------------------------------------
+						THE TYPES
+--------------------------------------------------------------------------------------------------------------------
+
+Each monster has a specific type which affects its stats. The types are:
+
+Neutral: These monsters have no stat bonuses, and no stat penalties either.
+Durable: These monsters have twice the HP of their neutral counterparts, but at a cost of 3/4 of their AP.
+Charged: These monsters have a chance to randomly make a critical hit when attacking, increasing their attack that turn.
+Impaired: These monsters are weak, and have low HP and AP compared to their neutral counterparts. But using them may surprise you...
+Feral: These monsters have twice the AP of their neutral counterparts, but at a cost of 3/4 their HP.
+Toxic: These monsters have slightly lower AP, but contaminate their foes when they attack, dealing extra toxin damage over the next 5 turns.
+Hot: These monsters gain a damage bonus when placed in hot zones, but a damage penalty when placed in cold zones.
+Cold: These monsters gain a damage bonus when placed in cold zones, but a damage penalty when placed in hot zones.
 
 --------------------------------------------------------------------------------------------------------------------
 						THE GAMEPLAY

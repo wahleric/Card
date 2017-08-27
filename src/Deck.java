@@ -129,19 +129,20 @@ public class Deck {
 	
 	//Assigns stats to a card based upon the Card's level and type
 	private void pickStats(Card card) {
+		//Apply basic random stats based on the Card level
 		Random r = new Random();
 		int maxHP = (MINIMUM_HP + r.nextInt(11)) * card.getLevel();
 		int upperAP = r.nextInt(10) * card.getLevel();
 		int lowerAP = r.nextInt(10) * card.getLevel();
 		int leftAP = r.nextInt(10) * card.getLevel();
 		int rightAP = r.nextInt(10) * card.getLevel();
-		//Durable creatures have double HP and half AP
+		//Durable creatures have double HP and 1/4 AP
 		if (card.getType().equals("Durable")) {
 			maxHP *= 2;
-			upperAP /= 2;
-			lowerAP /= 2;
-			leftAP /= 2;
-			rightAP /= 2;
+			upperAP /= 4;
+			lowerAP /= 4;
+			leftAP /= 4;
+			rightAP /= 4;
 		}
 		//Impaired creatures have all stats quartered
 		if (card.getType().equals("Impaired")) {
@@ -151,14 +152,23 @@ public class Deck {
 			leftAP /= 4;
 			rightAP /= 4;
 		}
-		//Feral creatures have half HP and double AP
+		//Feral creatures have 1/4 HP and double AP
 		if (card.getType().equals("Feral")) {
-			maxHP /= 2;
+			maxHP /= 4;
 			upperAP *= 2;
 			lowerAP *= 2;
 			leftAP *= 2;
 			rightAP *= 2;
 		}
+		//Toxic monsters have 3/4 HP and AP
+		if (card.getType().equals("Toxic")) {
+			maxHP = (maxHP * 3) / 4;
+			upperAP = (upperAP * 3) / 4;
+			lowerAP = (lowerAP * 3) / 4;
+			leftAP = (leftAP * 3) / 4;
+			rightAP = (rightAP * 3) / 4;
+		}
+		//Set the calculated stats in the Card
 		card.setMaxHP(maxHP);
 		card.setInitialAP(upperAP, lowerAP, leftAP, rightAP);
 	}

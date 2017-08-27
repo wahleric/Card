@@ -56,13 +56,16 @@ public class Battlefield {
 	}
 	
 	//Draws a card from the deck into a Player's hand
-	public void drawCard(Player player) {
+	public Card drawCard(Player player) {
 		if (deckIsEmpty()) {
 			throw new IllegalArgumentException("Invalid: Deck is empty");
 		}
 		Card card = deck.drawCard();
 		card.setOwner(player);
-		player.getHand().add(card);
+		if (player != null) {
+			player.getHand().add(card);
+		}
+		return card;
 	}
 	
 	//Adds a card to the deck
@@ -89,6 +92,11 @@ public class Battlefield {
 		return false;
 	}
 	
+	//Places the given card on the discard pile
+	public void discard(Card card) {
+		discardPile.add(card);
+	}
+	
 	//Removes a Card from a Node on the Battlefield and returns it
 	private Card removeCard(int nodeNumber) {
 		Card card = getCardAtNode(nodeNumber);
@@ -108,27 +116,36 @@ public class Battlefield {
 			//If the Card exists, deal appropriate damage to adjacent Cards
 			if (card != null) {
 				Player owner = card.getOwner();
-				//Deal attacks to any enemy Card below this Card
+				//Deal attacks to any enemy Card below this Card and apply any contamination
 				if (nodeNumber > 5) {
 					Card cardAbove = getCardAtNode(nodeNumber - 5);
 					if (!(cardAbove == null) && cardAbove.getOwner() != owner) {
 						cardAbove.setCurrentHP(cardAbove.getCurrentHP() - card.getCurrentUpperAP());
+						if (card.getType().equals("Toxic")) {
+							cardAbove.setContaminatedTurnsLeft(5);
+						}
 					}
 				}
 			
-				//Deal attacks to any enemy Card to the left of this Card
+				//Deal attacks to any enemy Card to the left of this Card and apply any contamination
 				if ((nodeNumber - 1) % 5 != 0) {
 					Card cardLeft = getCardAtNode(nodeNumber - 1);
 					if (!(cardLeft == null) && cardLeft.getOwner() != owner) {
 						cardLeft.setCurrentHP(cardLeft.getCurrentHP() - card.getCurrentLeftAP());
+						if (card.getType().equals("Toxic")) {
+							cardLeft.setContaminatedTurnsLeft(5);
+						}
 					}
 				}
 			
-				//Deal attacks to any enemy Card to the right of this Card
+				//Deal attacks to any enemy Card to the right of this Card and apply any contamination
 				if (nodeNumber % 5 != 0) {
 					Card cardRight = getCardAtNode(nodeNumber + 1);
 					if (!(cardRight == null) && cardRight.getOwner() != owner) {
 						cardRight.setCurrentHP(cardRight.getCurrentHP() - card.getCurrentRightAP());
+						if (card.getType().equals("Toxic")) {
+							cardRight.setContaminatedTurnsLeft(5);
+						}
 					}
 				}
 			
@@ -137,8 +154,23 @@ public class Battlefield {
 					Card cardBelow = getCardAtNode(nodeNumber + 5);
 					if (!(cardBelow == null) && cardBelow.getOwner() != owner) {
 						cardBelow.setCurrentHP(cardBelow.getCurrentHP() - card.getCurrentLowerAP());
+						if (card.getType().equals("Toxic")) {
+							cardBelow.setContaminatedTurnsLeft(5);
+						}
 					}
 				}
+			}
+		}
+		
+		//Deal any contamination damage across the board (3-7 HP randomly per turn)
+		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
+			Card card = getCardAtNode(nodeNumber);
+			Random r = new Random();
+			int contaminationDamage = r.nextInt(5) + 3;
+			if (card != null && card.getContaminatedTurnsLeft() > 0) {
+				int turnsLeft = card.getContaminatedTurnsLeft();
+				card.setCurrentHP(card.getCurrentHP() - contaminationDamage);
+				card.setContaminatedTurnsLeft(--turnsLeft);
 			}
 		}
 		
@@ -147,9 +179,11 @@ public class Battlefield {
 			Card card = getCardAtNode(nodeNumber);
 			if (card != null && card.getCurrentHP() <= 0) {
 				card.getOwner().setHP(card.getOwner().getHP() - card.getMaxHP());
+				card.resetCard();
 				discardPile.add(removeCard(nodeNumber));
 			}
 		}
+		//Increment the turn counter
 		turn++;
 	}
 	
@@ -298,8 +332,6 @@ public class Battlefield {
 		return bottom;
 	}
 	
-	//CHECK BELOW
-	
 	//Private helper method for toString()
 	private String monsterNameLine(int level) {
 		String mNL = "|";
@@ -326,6 +358,9 @@ public class Battlefield {
 				hPLine += spacerBox();
 			} else {
 				String hP = card.getCurrentHP() + "/" + card.getMaxHP() + " HP";
+				if (card.getContaminatedTurnsLeft() > 0) {
+					hP += " (Contaminated)";
+				}
 				hPLine += padString(hP, 25);
 				hPLine += "|";
 			}
