@@ -2,13 +2,14 @@ import java.io.*;
 import java.util.*;
 
 /*
- * This class represents a board on which the game is played. The Battlefield consists of Card Nodes arranged in 
- * a 5x5 board, which begins empty. Battlefield keeps track of the game status including the placement of Cards as
+ * This class represents a board on which the game is played. The Board consists of Card Nodes arranged in 
+ * a 5x5 square, which begins empty. Board keeps track of the game status including the placement of Cards as
  * well as the cards in each Player's hand.
  * 
  * Author: Eric Wahlquist
  */
-public class Battlefield {
+
+public class Board {
 	
 	private Player human;
 	private Player computer;
@@ -18,11 +19,11 @@ public class Battlefield {
 	private List<Card> discardPile;
 	
 	//Explicit private default constructor that prevents a null battlefield from being created
-	private Battlefield() {
+	private Board() {
 	}
 	
 	//Main constructor used for creating Battlefield objects
-	public Battlefield(Player human, Player computer) throws IOException {
+	public Board(Player human, Player computer) throws IOException {
 		this.human = human;
 		this.computer = computer;
 		turn = 1;
@@ -103,8 +104,7 @@ public class Battlefield {
 		if (card == null) {
 			throw new IllegalArgumentException("Invalid: Node is empty");
 		}
-		board[nodeNumber - 1].setCurrentCard(null);
-		return card;
+		return board[nodeNumber - 1].removeCard();
 	}
 	
 	//Ends the turn and initiates all attacks
@@ -179,7 +179,6 @@ public class Battlefield {
 			Card card = getCardAtNode(nodeNumber);
 			if (card != null && card.getCurrentHP() <= 0) {
 				card.getOwner().setHP(card.getOwner().getHP() - card.getMaxHP());
-				card.resetCard();
 				discardPile.add(removeCard(nodeNumber));
 			}
 		}

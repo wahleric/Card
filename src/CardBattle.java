@@ -15,7 +15,7 @@ public class CardBattle {
 	//Main method runs game
 	public static void main(String[] args) throws IOException {
 		Scanner keyboard = new Scanner(System.in);
-		Battlefield board = new Battlefield(intro(keyboard), new Player("Computer"));
+		Board board = new Board(intro(keyboard), new Player("Computer"));
 		boolean playAgain = true;
 		while (playAgain) {
 			gameLoop(board, keyboard);
@@ -24,7 +24,7 @@ public class CardBattle {
 		System.out.println("Thank you for playing!");
 	}
 	
-	public static void gameLoop(Battlefield board, Scanner keyboard) {
+	public static void gameLoop(Board board, Scanner keyboard) {
 		board.resetBoard();
 		initialDraw(board);
 		updateBoard(board);
@@ -49,7 +49,7 @@ public class CardBattle {
 		System.out.println("The winner of the game was " + winner.getName() + "!");
 	}
 	
-	public static void humanTurn(Battlefield board, Scanner keyboard) {
+	public static void humanTurn(Board board, Scanner keyboard) {
 		System.out.println("Your turn!\n");
 		wait(2);
 		showCards(board);
@@ -60,7 +60,7 @@ public class CardBattle {
 	}
 	
 	//AI calculates best place to put cards
-	public static void computerTurn(Battlefield board) {
+	public static void computerTurn(Board board) {
 		Card cardToPlay = null;
 		int nodeToPlay = -1;
 		int maxScore = -1;
@@ -121,12 +121,12 @@ public class CardBattle {
 	}
 	
 	//Prints the current status of the board to the console
-	public static void updateBoard(Battlefield board) {
+	public static void updateBoard(Board board) {
 		System.out.println(board);
 	}
 	
 	//Shows the human's cards including names and stats
-	public static void showCards(Battlefield board) {
+	public static void showCards(Board board) {
 		System.out.println("Your cards: \n");
 		for (Card card : board.getHumanPlayer().getHand()) {
 			System.out.print(board.getHumanPlayer().getHand().indexOf(card) + 1 + ". ");
@@ -138,7 +138,7 @@ public class CardBattle {
 	}
 	
 	//Prompts the user for a Card to place and a space to place it in
-	public static void chooseAndPlaceCard(Scanner keyboard, Battlefield board) {
+	public static void chooseAndPlaceCard(Scanner keyboard, Board board) {
 		keyboard.reset();
 		Player human = board.getHumanPlayer();
 		int cardNumber = -1;
@@ -172,7 +172,7 @@ public class CardBattle {
 	}
 	
 	//Randomly generates a bonus for any impaired monsters on the board
-	public static void checkImpairedBonus(Battlefield board) {
+	public static void checkImpairedBonus(Board board) {
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
 			Card card = board.getCardAtNode(nodeNumber);
 			if (card != null && card.getType().equals("Impaired")) {
@@ -190,12 +190,12 @@ public class CardBattle {
 	}
 	
 	//Takes a card from the deck and places it in a Player's hand
-	public static void drawCard(Battlefield board, Player player) {
+	public static void drawCard(Board board, Player player) {
 		board.drawCard(player);
 	}
 	
 	//Draws INITIAL_DEAL_NUMBER Cards for each player
-	public static void initialDraw(Battlefield board) {
+	public static void initialDraw(Board board) {
 		for (int i = 0; i < INITIAL_DEAL_NUMBER; i++) {
 			drawCard(board, board.getHumanPlayer());
 			drawCard(board, board.getComputerPlayer());
