@@ -11,11 +11,14 @@ import java.io.*;
 public class CardBattle {
 	
 	public static final int INITIAL_DEAL_NUMBER = 10;
+	public static final int PLAYER_MAX_HP = 500;
+	
 
 	//Main method runs game
 	public static void main(String[] args) throws IOException {
 		Scanner keyboard = new Scanner(System.in);
-		Board board = new Board(intro(keyboard), new Player("Computer"));
+		Board board = new Board(intro(keyboard), new Player("Computer", PLAYER_MAX_HP));
+		initializeDeck(board, 100);
 		boolean playAgain = true;
 		while (playAgain) {
 			gameLoop(board, keyboard);
@@ -33,7 +36,7 @@ public class CardBattle {
 				humanTurn(board, keyboard);
 				computerTurn(board);
 				checkImpairedBonus(board);
-				board.endOfTurn();
+				endOfTurn(board);
 				wait(2);
 			}
 		} else { //Computer goes first
@@ -41,7 +44,7 @@ public class CardBattle {
 				computerTurn(board);
 				humanTurn(board, keyboard);
 				checkImpairedBonus(board);
-				board.endOfTurn();
+				endOfTurn(board);
 				wait(2);
 			}
 		}
@@ -58,6 +61,85 @@ public class CardBattle {
 		drawCard(board, board.getHumanPlayer());
 		wait(1);
 	}
+	
+	//Ends the turn and initiates all attacks
+		public static void endOfTurn(Board board) {
+			for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
+				//For each Node:
+				//Get information about the Card at the Node
+				Card card = board.getCardAtNode(nodeNumber);
+				//If the Card exists, deal appropriate damage to adjacent Cards
+				if (card != null) {
+					Player owner = card.getOwner();
+					//Deal attacks to any enemy Card below this Card and apply any contamination
+					if (nodeNumber > 5) {
+						Card cardAbove = board.getCardAtNode(nodeNumber - 5);
+						if (!(cardAbove == null) && cardAbove.getOwner() != owner) {
+							cardAbove.subtractHP(card.getCurrentUpperAP());
+							if (card.getType().equals("Toxic")) {
+								cardAbove.setContaminatedTurnsLeft(5);
+							}
+						}
+					}
+				
+					//Deal attacks to any enemy Card to the left of this Card and apply any contamination
+					if ((nodeNumber - 1) % 5 != 0) {
+						Card cardLeft = board.getCardAtNode(nodeNumber - 1);
+						if (!(cardLeft == null) && cardLeft.getOwner() != owner) {
+							cardLeft.subtractHP(card.getCurrentLeftAP());
+							if (card.getType().equals("Toxic")) {
+								cardLeft.setContaminatedTurnsLeft(5);
+							}
+						}
+					}
+				
+					//Deal attacks to any enemy Card to the right of this Card and apply any contamination
+					if (nodeNumber % 5 != 0) {
+						Card cardRight = board.getCardAtNode(nodeNumber + 1);
+						if (!(cardRight == null) && cardRight.getOwner() != owner) {
+							cardRight.subtractHP(card.getCurrentRightAP());
+							if (card.getType().equals("Toxic")) {
+								cardRight.setContaminatedTurnsLeft(5);
+							}
+						}
+					}
+				
+					//Deal attacks to any enemy Card  below this Card
+					if (nodeNumber < 21) {
+						Card cardBelow = board.getCardAtNode(nodeNumber + 5);
+						if (!(cardBelow == null) && cardBelow.getOwner() != owner) {
+							cardBelow.subtractHP(card.getCurrentLowerAP());
+							if (card.getType().equals("Toxic")) {
+								cardBelow.setContaminatedTurnsLeft(5);
+							}
+						}
+					}
+				}
+			}
+			
+			//Deal any contamination damage across the board (3-7 HP randomly per turn)
+			for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
+				Card card = board.getCardAtNode(nodeNumber);
+				Random r = new Random();
+				int contaminationDamage = r.nextInt(5) + 3;
+				if (card != null && card.getContaminatedTurnsLeft() > 0) {
+					int turnsLeft = card.getContaminatedTurnsLeft();
+					card.subtractHP(contaminationDamage);
+					card.setContaminatedTurnsLeft(--turnsLeft);
+				}
+			}
+			
+			//After all damage is dealt across the board, remove any dead monsters and apply the proper damage to their owners
+			for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
+				Card card = board.getCardAtNode(nodeNumber);
+				if (card != null && card.getCurrentHP() <= 0) {
+					card.getOwner().subtractHP(card.getMaxHP());
+					board.removeCard(nodeNumber);
+				}
+			}
+			//Increment the turn counter
+			board.incrementTurn();
+		}
 	
 	//AI calculates best place to put cards
 	public static void computerTurn(Board board) {
@@ -114,7 +196,7 @@ public class CardBattle {
 				}
 			}
 		}
-		//board.placeCard(board.getComputerPlayer(), cardToPlay, nodeToPlay);
+		board.placeCard(board.getComputerPlayer(), cardToPlay, nodeToPlay);
 		updateBoard(board);
 		drawCard(board, board.getComputerPlayer());
 		wait(1);
@@ -143,17 +225,17 @@ public class CardBattle {
 		Player human = board.getHumanPlayer();
 		int cardNumber = -1;
 		System.out.println("Which card would you like to place (enter the number)?");
-		while (cardNumber < 1 || cardNumber > human.getHand().size()) {
+		while (cardNumber < 1 || cardNumber > board.getHumanPlayer().getHand().size()) {
 			try {
 				cardNumber = keyboard.nextInt();
 			} catch (InputMismatchException noInt) {
 				keyboard.next();
 			}
-			if (cardNumber < 1 || cardNumber > human.getHand().size()) {
-				System.out.println("Please enter a valid card number (1 - " + human.getHand().size() + ")");
+			if (cardNumber < 1 || cardNumber > board.getHumanPlayer().getHand().size()) {
+				System.out.println("Please enter a valid card number (1 - " + board.getHumanPlayer().getHand().size() + ")");
 			}
 		}
-		Card card = human.getHand().get(cardNumber - 1);
+		Card card = board.getHumanPlayer().getHand().get(cardNumber - 1);
 		System.out.println("Which node would you like to place the card in (1 - 25)?");
 		int nodeNumber = -1;
 		while (nodeNumber < 1  || nodeNumber > 25 || board.getCardAtNode(nodeNumber) != null) {
@@ -183,7 +265,7 @@ public class CardBattle {
 					card.setCurrentHP(card.getCurrentHP() + (cardToAdd.getMaxHP() / 2));
 					card.setCurrentAP(card.getCurrentUpperAP() + (cardToAdd.getCurrentUpperAP() / 2), card.getCurrentLowerAP() + (cardToAdd.getCurrentLowerAP() / 2), 
 							card.getCurrentLeftAP() + (cardToAdd.getCurrentLeftAP() / 2), card.getCurrentRightAP() + (cardToAdd.getCurrentRightAP() / 2));
-					board.discard(cardToAdd);
+					board.addCard(cardToAdd);
 				}
 			}
 		}
@@ -192,6 +274,15 @@ public class CardBattle {
 	//Takes a card from the deck and places it in a Player's hand
 	public static void drawCard(Board board, Player player) {
 		board.drawCard(player);
+	}
+	
+	//Initializes the board deck with a given number of Cards
+	
+	public static void initializeDeck(Board board, int numberOfCards) throws IOException {
+		CardGenerator generator = new CardGenerator();
+		for (int cardNumber = 1; cardNumber <= numberOfCards; cardNumber++) {
+			board.addCard(generator.generateRandomCard());
+		}
 	}
 	
 	//Draws INITIAL_DEAL_NUMBER Cards for each player
@@ -236,7 +327,7 @@ public class CardBattle {
 		}
 		System.out.println("What is your name?");
 		String name = keyboard.nextLine();
-		return new Player(name);
+		return new Player(name, PLAYER_MAX_HP);
 	}
 	
 	//Reads the game instructions in from Instructions.txt

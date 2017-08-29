@@ -60,7 +60,6 @@ public class CardGenerator {
 		pickAdjective(card);
 		pickName(card);
 		pickStats(card);
-		card.reset();
 		return card;
 	}
 
@@ -137,20 +136,21 @@ public class CardGenerator {
 			rightAP *= 2;
 		}
 
-		// Toxic monsters have 3/4 HP and AP
+		// Toxic monsters have 1/2 HP and 1/2 AP
 
 		if (card.getType().equals("Toxic")) {
-			maxHP = (maxHP * 3) / 4;
-			upperAP = (upperAP * 3) / 4;
-			lowerAP = (lowerAP * 3) / 4;
-			leftAP = (leftAP * 3) / 4;
-			rightAP = (rightAP * 3) / 4;
+			maxHP /= 2;
+			upperAP /= 2;
+			lowerAP /= 2;
+			leftAP /= 2;
+			rightAP /= 2;
 		}
 
 		// Apply the generated stats to the Card
 
 		card.setMaxHP(maxHP);
 		card.setInitialAP(upperAP, lowerAP, leftAP, rightAP);
+		card.reset();
 	}
 
 	// Reads types and adjectives from adjAndType.txt file and organizes them

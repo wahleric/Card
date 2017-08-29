@@ -46,4 +46,14 @@ public class Deck {
 	public boolean isEmpty() {
 		return deck.isEmpty();
 	}
+
+	// Resets all cards in the deck to their original state and shuffles the
+	// deck
+
+	public void reset() {
+		for (Card card : deck) {
+			card.reset();
+		}
+		shuffle();
+	}
 }

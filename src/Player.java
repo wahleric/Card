@@ -9,11 +9,10 @@ import java.util.*;
 
 public class Player {
 	
-	public static final int PLAYER_MAX_HP = 500;
-
 	private String name;
 	private List<Card> hand;
-	private int hP;
+	private int maxHP;
+	private int currentHP;
 	
 	
 	//Explicit private default constructor that prevents empty Players from being created
@@ -23,10 +22,11 @@ public class Player {
 	
 	//Main constructor used for creating Player objects
 	
-	public Player(String name) {
+	public Player(String name, int maxHP) {
 		this.name = name;
 		hand = new ArrayList<Card>();
-		hP = PLAYER_MAX_HP;
+		this.maxHP = maxHP;
+		currentHP = maxHP;
 	}
 	
 	//Returns the name of this Player
@@ -41,10 +41,16 @@ public class Player {
 		return hand;
 	}
 
-	//Returns the HP of this Player
+	//Returns the max HP of this Player
 	
-	public int getHP() {
-		return hP;
+	public int getMaxHP() {
+		return maxHP;
+	}
+	
+	//Returns the current HP of this Player
+	
+	public int getCurrentHP() {
+		return currentHP;
 	}
 	
 	//Sets the name of this Player
@@ -55,14 +61,33 @@ public class Player {
 	
 	//Sets the HP of this Player
 	
-	public void setHP(int hP) {
-		this.hP = hP;
+	public void setMaxHP(int maxHP) {
+		this.maxHP = maxHP;
+	}
+	
+	//Adds a given amount of HP to this Player's health
+	
+	public void addHP(int amountToAdd) {
+		currentHP += amountToAdd;
+	}
+	
+	//Subtracts a given amount of HP from this Player's health
+	
+	public void subtractHP(int amountToSubtract) {
+		currentHP -= amountToSubtract;
+	}
+	
+	//Resets this Player, clearing the Player's hand and restoring it to max HP
+	
+	public void reset() {
+		hand.clear();
+		currentHP = maxHP;
 	}
 	
 	//Returns a string that displays this Player's name as well as HP
 	
 	public String toString() {
-		return name + ": " + hP + "/" + PLAYER_MAX_HP + " HP";
+		return getName() + ": " + currentHP + "/" + maxHP + " HP";
 	}
 	
 }

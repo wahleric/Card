@@ -192,6 +192,18 @@ public class Card {
 	public void setContaminatedTurnsLeft(int numberOfTurns) {
 		contaminatedTurnsLeft = numberOfTurns;
 	}
+	
+	//Adds the given amount of HP to this Card's current HP
+	
+	public void addHP(int amountToAdd) {
+		currentHP += amountToAdd;
+	}
+	
+	//Subtracts the given amount of HP from this Card's current HP
+	
+	public void subtractHP(int amountToSubtract) {
+		currentHP -= amountToSubtract;
+	}
 
 	// Resets all current stats to their initial numbers and clears the owner
 	public void reset() {
@@ -207,7 +219,7 @@ public class Card {
 		String s = name + ":\n\n";
 		s += "Type: " + type + "\n";
 		s += "Monster level: " + level + "\n";
-		s += "Maximum HP: " + currentHP + "\n";
+		s += "Maximum HP: " + maxHP + "\n";
 		s += "Upper AP: " + currentUpperAP + "\n";
 		s += "Lower AP: " + currentLowerAP + "\n";
 		s += "Left AP: " + currentLeftAP + "\n";
