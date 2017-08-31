@@ -7,7 +7,7 @@ import java.util.*;
  */
 
 public class CardBattleAI {
-	
+
 	private final int INITIAL_DEAL_NUMBER = 5;
 	private static final int CARDS_IN_DECK = 100;
 
@@ -15,8 +15,14 @@ public class CardBattleAI {
 	private Board board;
 	private Random r;
 
+	// Private default constructor prevents an invalid CardBattleAI from being
+	// created
+
+	@SuppressWarnings("unused")
 	private CardBattleAI() {
 	}
+
+	// Creates a CardBattleAI from a given board and difficulty
 
 	public CardBattleAI(Board board, String difficulty) {
 		if (!(difficulty.equalsIgnoreCase("Easy") || difficulty.equalsIgnoreCase("Medium")
@@ -57,6 +63,7 @@ public class CardBattleAI {
 			// If the Card exists, deal appropriate damage to adjacent Cards
 			if (card != null) {
 				Player owner = card.getOwner();
+
 				// Deal attacks to any enemy Card below this Card and apply any
 				// contamination
 				if (nodeNumber > 5) {
@@ -93,7 +100,8 @@ public class CardBattleAI {
 					}
 				}
 
-				// Deal attacks to any enemy Card below this Card
+				// Deal attacks to any enemy Card below this Card and apply any
+				// contamination
 				if (nodeNumber < 21) {
 					Card cardBelow = board.getCardAtNode(nodeNumber + 5);
 					if (!(cardBelow == null) && cardBelow.getOwner() != owner) {
@@ -131,13 +139,14 @@ public class CardBattleAI {
 		board.incrementTurn();
 	}
 
+	// Initiates the AI for the computer's turn, depending on the chosen
+	// difficulty level
+
 	public void computerTurn() {
 		if (difficulty.equalsIgnoreCase("Easy")) {
 			easyAI();
-		} else if (difficulty.equalsIgnoreCase("Medium")) {
-			mediumAI();
 		} else {
-			hardAI();
+			mediumAndHardAI();
 		}
 		board.drawCard(board.getComputerPlayer());
 	}
@@ -154,7 +163,7 @@ public class CardBattleAI {
 	// Provides an AI with medium difficulty (Calculates damage given vs. damage
 	// taken)
 
-	private void mediumAI() {
+	private void mediumAndHardAI() {
 		Card cardToPlay = null;
 		int nodeToPlay = -1;
 		int maxScore = -1;
@@ -162,11 +171,12 @@ public class CardBattleAI {
 			Card cardInNode = board.getCardAtNode(nodeNumber);
 			if (cardInNode == null) {
 				for (Card card : board.getComputerPlayer().getHand()) {
-					
+
 					int damageGiven = 0;
 					int damageTaken = 0;
+					int sideBonus = 0;
 					int score;
-					
+
 					// Scan enemies above
 					if (nodeNumber > 5) {
 						Card cardAbove = board.getCardAtNode(nodeNumber - 5);
@@ -175,7 +185,7 @@ public class CardBattleAI {
 							damageTaken += Math.min(cardAbove.getCurrentLowerAP(), card.getCurrentHP());
 						}
 					}
-					
+
 					// Scan enemies to the left
 					if ((nodeNumber - 1) % 5 != 0) {
 						Card cardLeft = board.getCardAtNode(nodeNumber - 1);
@@ -184,7 +194,7 @@ public class CardBattleAI {
 							damageTaken += Math.min(cardLeft.getCurrentRightAP(), card.getCurrentHP());
 						}
 					}
-					
+
 					// Scan enemies to the right
 					if ((nodeNumber % 5) != 0) {
 						Card cardRight = board.getCardAtNode(nodeNumber + 1);
@@ -193,7 +203,7 @@ public class CardBattleAI {
 							damageTaken += Math.min(cardRight.getCurrentLeftAP(), card.getCurrentHP());
 						}
 					}
-					
+
 					// Scan enemies below
 					if (nodeNumber < 21) {
 						Card cardBelow = board.getCardAtNode(nodeNumber + 5);
@@ -202,8 +212,13 @@ public class CardBattleAI {
 							damageTaken += Math.min(cardBelow.getCurrentUpperAP(), card.getCurrentHP());
 						}
 					}
-					
-					score = damageGiven - damageTaken;
+
+					// If the difficulty is "Hard", apply additional checks
+					if (difficulty.equalsIgnoreCase("Hard")) {
+						sideBonus = hardAI(nodeNumber, card);
+					}
+
+					score = (damageGiven - damageTaken) + sideBonus;
 					if (score > maxScore) {
 						cardToPlay = card;
 						nodeToPlay = nodeNumber;
@@ -215,8 +230,54 @@ public class CardBattleAI {
 		board.placeCard(board.getComputerPlayer(), cardToPlay, nodeToPlay);
 	}
 
-	private void hardAI() {
+	// Provides an AI with hard difficulty by taking into account more factors
+	// in the placement of cards
 
+	private int hardAI(int nodeNumber, Card card) {
+
+		int potentialDamage = card.getCurrentUpperAP() + card.getCurrentLowerAP() + card.getCurrentLeftAP()
+				+ card.getCurrentRightAP();
+
+		// Check nodes above for wasted potential damage
+		if (nodeNumber < 6) {
+			potentialDamage -= card.getCurrentUpperAP();
+		} else {
+			Card cardAbove = board.getCardAtNode(nodeNumber - 5);
+			if (cardAbove != null && cardAbove.getOwner() == board.getComputerPlayer()) {
+				potentialDamage -= card.getCurrentUpperAP();
+			}
+		}
+
+		// Check nodes below for wasted potential damage
+		if (nodeNumber > 20) {
+			potentialDamage -= card.getCurrentLowerAP();
+		} else {
+			Card cardBelow = board.getCardAtNode(nodeNumber + 5);
+			if (cardBelow != null && cardBelow.getOwner() == board.getComputerPlayer()) {
+				potentialDamage -= card.getCurrentUpperAP();
+			}
+		}
+
+		// Check nodes to left for wasted potential damage
+		if ((nodeNumber - 1) % 5 == 0) {
+			potentialDamage -= card.getCurrentLeftAP();
+		} else {
+			Card cardLeft = board.getCardAtNode(nodeNumber - 1);
+			if (cardLeft != null && cardLeft.getOwner() == board.getComputerPlayer()) {
+				potentialDamage -= card.getCurrentUpperAP();
+			}
+		}
+
+		// Check nodes to right for wasted potential damage
+		if (nodeNumber % 5 == 0) {
+			potentialDamage -= card.getCurrentLowerAP();
+		} else {
+			Card cardRight = board.getCardAtNode(nodeNumber + 1);
+			if (cardRight != null && cardRight.getOwner() == board.getComputerPlayer()) {
+				potentialDamage -= card.getCurrentUpperAP();
+			}
+		}
+		return potentialDamage;
 	}
 
 	// Randomly has a chance to generate a bonus for any impaired monsters on
@@ -229,26 +290,15 @@ public class CardBattleAI {
 				Random r = new Random();
 				if (r.nextDouble() > 0.7) {
 					Card cardToAdd = board.drawCard(null);
-					System.out.println("A " + cardToAdd.getName() + " sees the impaired " + card.getName()
-							+ " and comes to its aid!");
 					card.setCurrentHP(card.getCurrentHP() + (cardToAdd.getMaxHP() / 2));
 					card.setCurrentAP(card.getCurrentUpperAP() + (cardToAdd.getCurrentUpperAP() / 2),
 							card.getCurrentLowerAP() + (cardToAdd.getCurrentLowerAP() / 2),
 							card.getCurrentLeftAP() + (cardToAdd.getCurrentLeftAP() / 2),
 							card.getCurrentRightAP() + (cardToAdd.getCurrentRightAP() / 2));
+					CardBattleIO.showImpairedBonus(card, cardToAdd);
 					board.addCard(cardToAdd);
 				}
 			}
-		}
-	}
-
-	// Waits the given number of seconds before continuing the program
-
-	public static void wait(int seconds) {
-		long waitTime = seconds * 1000;
-		long time = System.currentTimeMillis();
-		long timesUp = time + waitTime;
-		while (System.currentTimeMillis() < timesUp) {
 		}
 	}
 }

@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.*;
 
 /*
  * This class represents a board on which the game is played. The Board consists of Card Nodes arranged in 
@@ -21,6 +20,7 @@ public class Board {
 	// Explicit private default constructor that prevents a null battlefield
 	// from being created
 
+	@SuppressWarnings("unused")
 	private Board() {
 	}
 
@@ -116,6 +116,17 @@ public class Board {
 	public boolean deckIsEmpty() {
 		return deck.isEmpty();
 	}
+	
+	// Returns true if this Board is full (has no open Nodes left to place Cards in)
+	
+	public boolean isFull() {
+		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
+			if (getCardAtNode(nodeNumber) == null) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	// Increments the turn counter by 1
 
@@ -150,6 +161,18 @@ public class Board {
 		human.reset();
 		computer.reset();
 		turn = 1;
+	}
+
+	// Gets a given Node's type of zone bonus
+
+	public String getZoneBonus(int nodeNumber) {
+		return board[nodeNumber - 1].getZonetype();
+	}
+
+	// Sets a given Node to have the given type of zone bonus
+
+	public void setZoneBonus(int nodeNumber, String zoneType) {
+		board[nodeNumber - 1].setZoneType(zoneType);
 	}
 
 	// If the game is over, returns the Player who has won. Otherwise, returns a
@@ -375,12 +398,14 @@ public class Board {
 	private class Node {
 
 		private Card currentCard;
+		private String zoneType;
 
 		// Constructor takes a node number and creates a blank node with that
 		// number
 
 		public Node() {
 			setCurrentCard(null);
+			setZoneType("");
 		}
 
 		// Returns the current Card placed in this Node
@@ -389,10 +414,22 @@ public class Board {
 			return currentCard;
 		}
 
+		// Returns whether this Node currently has a special zone active
+
+		public String getZonetype() {
+			return zoneType;
+		}
+
 		// Sets the current Card placed in this Node
 
 		public void setCurrentCard(Card card) {
 			this.currentCard = card;
+		}
+
+		// Sets the current status of hotZone on this Node
+
+		public void setZoneType(String zoneType) {
+			this.zoneType = zoneType;
 		}
 
 		// Removes a Card placed in this node and returns it

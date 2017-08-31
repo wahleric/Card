@@ -17,6 +17,7 @@ public class Player {
 	
 	//Explicit private default constructor that prevents empty Players from being created
 	
+	@SuppressWarnings("unused")
 	private Player() {
 	}
 	

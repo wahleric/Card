@@ -1,4 +1,3 @@
-import java.util.*;
 import java.io.*;
 
 /*
@@ -22,37 +21,49 @@ public class CardBattle {
 		boolean playAgain = true;
 		while (playAgain) {
 			gameLoop(board, ai, io);
-			playAgain = io.askToPlayAgain();
+			io.showWinner();
+			playAgain = CardBattleIO.askToPlayAgain();
 		}
-		io.showWinner();
 		System.out.println("Thank you for playing!");
 	}
 
 	public static void gameLoop(Board board, CardBattleAI ai, CardBattleIO io) {
 		board.resetBoard();
 		ai.initialDraw();
-		if (io.rollDice()) { // Human goes first
+		if (CardBattleIO.rollDice()) { // Human won the toss and has the advantage of going second each turn
+			CardBattleIO.wait(2);
+			io.printBoard();
 			while (board.getWinner() == null) {
 				ai.checkImpairedBonus();
 				CardBattleIO.wait(2);
-				io.printBoard();
-				io.humanTurn();;
-				io.printBoard();
+				if (!io.boardIsFull()) {
+					ai.computerTurn();
+					io.printBoard();
+				}
 				CardBattleIO.wait(2);
-				ai.computerTurn();
-				io.printBoard();
+				if (!io.boardIsFull()) {
+					io.humanTurn();
+					io.printBoard();
+				}
 				CardBattleIO.wait(2);
 				ai.endTurn();
-
+				io.printBoard();
 			}
-		} else { // Computer goes first
+		} else { // Computer won the toss and has the advantage of going second each turn
 			while (board.getWinner() == null) {
 				ai.checkImpairedBonus();
-				CardBattleAI.wait(2);
-				ai.computerTurn();
+				CardBattleIO.wait(2);
 				io.printBoard();
-				io.humanTurn();
-				io.printBoard();
+				if (!io.boardIsFull()) {
+					io.humanTurn();
+					io.printBoard();
+				}
+				CardBattleIO.wait(2);
+				if (!io.boardIsFull()) {
+					ai.computerTurn();
+					io.printBoard();
+				}
+				CardBattleIO.wait(2);
 				ai.endTurn();
 			}
 		}

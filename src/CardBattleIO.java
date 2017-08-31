@@ -14,6 +14,7 @@ public class CardBattleIO {
 	// Private explicit constructor prevents an invalid CardBattleIO from being
 	// created
 
+	@SuppressWarnings("unused")
 	private CardBattleIO() {
 	}
 
@@ -42,6 +43,7 @@ public class CardBattleIO {
 				System.out.println("Please enter a valid number [1 - 3]");
 			}
 		}
+		reader.reset();
 		if (choice == 1) {
 			return "Easy";
 		} else if (choice == 2) {
@@ -66,17 +68,37 @@ public class CardBattleIO {
 		}
 		System.out.println("");
 	}
-	
-	// Controls the 
-	
+
+	// Takes input from the human player and places the chosen Card in the
+	// chosen Node
+
 	public void humanTurn() {
 		System.out.println("Your turn!\n");
-		CardBattleAI.wait(2);
+		wait(2);
 		showPlayersCards();
 		Card card = pickCard();
 		int nodeNumber = pickNode();
 		board.placeCard(board.getHumanPlayer(), card, nodeNumber);
 		board.drawCard(board.getHumanPlayer());
+	}
+
+	// Prints a message and returns true if board is full and no moves may be
+	// made; returns false otherwise
+
+	public boolean boardIsFull() {
+		if (board.isFull()) {
+			System.out.println("The board is full! No moves can be made.\n");
+			return true;
+		}
+		return false;
+	}
+
+	// Prints a message that a monster has come to the aid of an impaired
+	// monster
+
+	public static void showImpairedBonus(Card impaired, Card helper) {
+		System.out.println(
+				"A " + helper.getName() + " sees the impaired " + impaired.getName() + " and comes to its aid!");
 	}
 
 	// Prints the current status of the board to the console
@@ -145,14 +167,14 @@ public class CardBattleIO {
 		}
 		System.out.println("What is your name?");
 		String name = reader.nextLine();
-		reader.reset();
 		board.getHumanPlayer().setName(name);
+		reader.reset();
 	}
 
 	// Rolls a 20-sided dice to see who goes first. Returns true if human wins
 	// the roll, returns false otherwise
 
-	public boolean rollDice() {
+	public static boolean rollDice() {
 		System.out.println("Rolling the dice to see who goes first...\n");
 		wait(2);
 		Random r = new Random();
@@ -161,12 +183,16 @@ public class CardBattleIO {
 		System.out.println("Your roll: " + humanRoll);
 		wait(1);
 		System.out.println("Computer's roll: " + computerRoll + "\n");
-		CardBattleAI.wait(1);
-		if (humanRoll > computerRoll) {
-			System.out.println("You won the roll! You will make the first move.\n");
+		wait(1);
+		if (humanRoll >= computerRoll) {
+			if (humanRoll == computerRoll) {
+				System.out.print("Tie goes to the player. ");
+			}
+			System.out.println("You won the roll! You will have the advantage of making the second move each turn.\n");
 			return true;
 		}
-		System.out.println("Your opponent won the roll! They will make the first move.\n");
+		System.out.println(
+				"Your opponent won the roll! They will have the advantage of making the second move each turn.\n");
 		wait(2);
 		return false;
 	}
@@ -186,7 +212,7 @@ public class CardBattleIO {
 	// Prompts the player to play again and takes input from the keyboard as an
 	// answer
 
-	public boolean askToPlayAgain() {
+	public static boolean askToPlayAgain() {
 		System.out.println("Would you like to play again (y/n)?");
 		String answer = reader.next();
 		while (!(answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("n"))) {
@@ -213,18 +239,21 @@ public class CardBattleIO {
 	// Waits until the player presses the enter key before continuing the
 	// program
 
-	public static void pressEnterToContinue() {
+	public static void pressEnterToContinue() throws IOException {
 		System.out.println("Press Enter key to continue...");
 		try {
-			System.in.read();
+			reader.nextLine();
 		} catch (Exception e) {
 		}
+		reader.reset();
 	}
 
 	// Checks for a winner and returns who won
 
 	public void showWinner() {
 		Player winner = board.getWinner();
-		System.out.println("The winner of the game was " + winner.getName() + "!");
+		if (winner != null) {
+			System.out.println("The winner of the game was " + winner.getName() + "!");
+		}
 	}
 }

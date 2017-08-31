@@ -35,6 +35,7 @@ public class Card {
 	// Explicit private default constructor that prevents invalid Cards from
 	// being created
 
+	@SuppressWarnings("unused")
 	private Card() {
 	}
 
