@@ -193,17 +193,24 @@ public class Card {
 	public void setContaminatedTurnsLeft(int numberOfTurns) {
 		contaminatedTurnsLeft = numberOfTurns;
 	}
-	
-	//Adds the given amount of HP to this Card's current HP
-	
+
+	// Adds the given amount of HP to this Card's current HP
+
 	public void addHP(int amountToAdd) {
 		currentHP += amountToAdd;
 	}
-	
-	//Subtracts the given amount of HP from this Card's current HP
-	
+
+	// Subtracts the given amount of HP from this Card's current HP
+
 	public void subtractHP(int amountToSubtract) {
 		currentHP -= amountToSubtract;
+	}
+
+	// Adds the given amount of AP to each side of this card
+
+	public void addAP(int amountToAdd) {
+		setCurrentAP(currentUpperAP + amountToAdd, currentLowerAP + amountToAdd, currentLeftAP + amountToAdd,
+				currentRightAP + amountToAdd);
 	}
 
 	// Resets all current stats to their initial numbers and clears the owner

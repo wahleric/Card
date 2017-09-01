@@ -8,7 +8,7 @@ import java.util.*;
 
 public class CardBattleAI {
 
-	private final int INITIAL_DEAL_NUMBER = 5;
+	private final int INITIAL_DEAL_NUMBER = 10;
 	private static final int CARDS_IN_DECK = 100;
 
 	private String difficulty;
@@ -154,10 +154,13 @@ public class CardBattleAI {
 	// Provides an AI with easy difficulty (Random Card and Node choices)
 
 	private void easyAI() {
-		int nodeToPlace = r.nextInt(25) + 1;
-		int randomCardIndex = r.nextInt(board.getComputerPlayer().getHand().size());
-		Card cardToPlace = board.getComputerPlayer().getHand().get(randomCardIndex);
-		board.placeCard(board.getComputerPlayer(), cardToPlace, nodeToPlace);
+		boolean placed = false;
+		while (!placed) {
+			int nodeToPlace = r.nextInt(25) + 1;
+			int randomCardIndex = r.nextInt(board.getComputerPlayer().getHand().size());
+			Card cardToPlace = board.getComputerPlayer().getHand().get(randomCardIndex);
+			placed = board.placeCard(board.getComputerPlayer(), cardToPlace, nodeToPlace);
+		}
 	}
 
 	// Provides an AI with medium difficulty (Calculates damage given vs. damage
@@ -166,7 +169,7 @@ public class CardBattleAI {
 	private void mediumAndHardAI() {
 		Card cardToPlay = null;
 		int nodeToPlay = -1;
-		int maxScore = -1;
+		int maxScore = -1000000;
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
 			Card cardInNode = board.getCardAtNode(nodeNumber);
 			if (cardInNode == null) {
@@ -254,7 +257,7 @@ public class CardBattleAI {
 		} else {
 			Card cardBelow = board.getCardAtNode(nodeNumber + 5);
 			if (cardBelow != null && cardBelow.getOwner() == board.getComputerPlayer()) {
-				potentialDamage -= card.getCurrentUpperAP();
+				potentialDamage -= card.getCurrentLowerAP();
 			}
 		}
 
@@ -264,30 +267,30 @@ public class CardBattleAI {
 		} else {
 			Card cardLeft = board.getCardAtNode(nodeNumber - 1);
 			if (cardLeft != null && cardLeft.getOwner() == board.getComputerPlayer()) {
-				potentialDamage -= card.getCurrentUpperAP();
+				potentialDamage -= card.getCurrentLeftAP();
 			}
 		}
 
 		// Check nodes to right for wasted potential damage
 		if (nodeNumber % 5 == 0) {
-			potentialDamage -= card.getCurrentLowerAP();
+			potentialDamage -= card.getCurrentRightAP();
 		} else {
 			Card cardRight = board.getCardAtNode(nodeNumber + 1);
 			if (cardRight != null && cardRight.getOwner() == board.getComputerPlayer()) {
-				potentialDamage -= card.getCurrentUpperAP();
+				potentialDamage -= card.getCurrentRightAP();
 			}
 		}
 		return potentialDamage;
 	}
 
 	// Randomly has a chance to generate a bonus for any impaired monsters on
-	// the board
+	// the board. Returns true if it happens, false otherwise
 
-	public void checkImpairedBonus() {
+	public boolean applyImpairedBonus() {
+		boolean bonusHappened = false;
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
 			Card card = board.getCardAtNode(nodeNumber);
 			if (card != null && card.getType().equals("Impaired")) {
-				Random r = new Random();
 				if (r.nextDouble() > 0.7) {
 					Card cardToAdd = board.drawCard(null);
 					card.setCurrentHP(card.getCurrentHP() + (cardToAdd.getMaxHP() / 2));
@@ -295,10 +298,82 @@ public class CardBattleAI {
 							card.getCurrentLowerAP() + (cardToAdd.getCurrentLowerAP() / 2),
 							card.getCurrentLeftAP() + (cardToAdd.getCurrentLeftAP() / 2),
 							card.getCurrentRightAP() + (cardToAdd.getCurrentRightAP() / 2));
-					CardBattleIO.showImpairedBonus(card, cardToAdd);
 					board.addCard(cardToAdd);
+					bonusHappened = true;
 				}
 			}
 		}
+		return bonusHappened;
+	}
+
+	// Applies a bonus to the AP of any charged monsters on the board that are
+	// placed next to other charged monsters of the same team. Returns true if
+	// it happens, false otherwise
+
+	public boolean applyChargedBonus() {
+		boolean bonusHappened = false;
+		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
+			Card card = board.getCardAtNode(nodeNumber);
+			if (card != null && card.getType().equals("Charged")) {
+				// Check if the player has a charged monster to the left
+				if ((nodeNumber - 1) % 5 != 0) {
+					Card cardLeft = board.getCardAtNode(nodeNumber - 1);
+					if (cardLeft != null && cardLeft.getType().equalsIgnoreCase("Charged")
+							&& cardLeft.getOwner() == card.getOwner()) {
+						card.addAP(2);
+						cardLeft.addAP(2);
+						bonusHappened = true;
+					}
+				}
+				// Check if the player has a charged monster to the right
+				if (nodeNumber % 5 != 0) {
+					Card cardRight = board.getCardAtNode(nodeNumber + 1);
+					if (cardRight != null && cardRight.getType().equalsIgnoreCase("Charged")
+							&& cardRight.getOwner() == card.getOwner()) {
+						card.addAP(2);
+						cardRight.addAP(2);
+						bonusHappened = true;
+					}
+				}
+				// Check if the player has a charged monster above
+				if (nodeNumber > 5) {
+					Card cardAbove = board.getCardAtNode(nodeNumber - 5);
+					if (cardAbove != null && cardAbove.getType().equalsIgnoreCase("Charged")
+							&& cardAbove.getOwner() == card.getOwner()) {
+						card.addAP(2);
+						cardAbove.addAP(2);
+						bonusHappened = true;
+					}
+				}
+				// Check if the player has a charged monster below
+				if (nodeNumber < 21) {
+					Card cardBelow = board.getCardAtNode(nodeNumber + 5);
+					if (cardBelow != null && cardBelow.getType().equalsIgnoreCase("Charged")
+							&& cardBelow.getOwner() == card.getOwner()) {
+						card.addAP(2);
+						cardBelow.addAP(2);
+						bonusHappened = true;
+					}
+				}
+			}
+		}
+		return bonusHappened;
+	}
+
+	// If the game is over, returns the Player who has won. Otherwise, returns a
+	// new Player named "a tie" if the game was
+	// a tie, or returns null if the game is not over
+
+	public Player getWinner() {
+		if (board.getHumanPlayer().getCurrentHP() > 0 && board.getComputerPlayer().getCurrentHP() <= 0) {
+			return board.getHumanPlayer();
+		}
+		if (board.getHumanPlayer().getCurrentHP() <= 0 && board.getComputerPlayer().getCurrentHP() > 0) {
+			return board.getComputerPlayer();
+		}
+		if (board.getHumanPlayer().getCurrentHP() <= 0 && board.getComputerPlayer().getCurrentHP() <= 0) {
+			return new Player("a tie", 0);
+		}
+		return null;
 	}
 }

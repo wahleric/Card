@@ -73,13 +73,23 @@ public class CardBattleIO {
 	// chosen Node
 
 	public void humanTurn() {
-		System.out.println("Your turn!\n");
-		wait(2);
 		showPlayersCards();
 		Card card = pickCard();
 		int nodeNumber = pickNode();
 		board.placeCard(board.getHumanPlayer(), card, nodeNumber);
 		board.drawCard(board.getHumanPlayer());
+	}
+	
+	// Prints that it is now the given player's turn
+	
+	public static void showTurn(Player player) {
+		System.out.println(player.getName() + "'s move!\n");
+	}
+	 
+	// Prints that the turn is now over
+	
+	public static void roundOver() {
+		System.out.println("Next turn!\n");
 	}
 
 	// Prints a message and returns true if board is full and no moves may be
@@ -96,10 +106,18 @@ public class CardBattleIO {
 	// Prints a message that a monster has come to the aid of an impaired
 	// monster
 
-	public static void showImpairedBonus(Card impaired, Card helper) {
+	public static void showImpairedBonus() {
 		System.out.println(
-				"A " + helper.getName() + " sees the impaired " + impaired.getName() + " and comes to its aid!");
+				"Nearby monsters are coming to the aid of impaired monsters! Their stats are increased!\n");
 	}
+	
+	// Prints a message that a monster has come to the aid of an impaired
+		// monster
+
+		public static void showChargedBonus() {
+			System.out.println(
+					"Charged monsters are building power! Their attack is increased!\n");
+		}
 
 	// Prints the current status of the board to the console
 
@@ -112,8 +130,9 @@ public class CardBattleIO {
 
 	public Card pickCard() {
 		int cardNumber = -1;
-		System.out.println("Which card would you like to place (enter the number)?");
-		while (cardNumber < 1 || cardNumber > board.getHumanPlayer().getHand().size()) {
+		int totalCards = board.getHumanPlayer().getHand().size();
+		System.out.println("Which card would you like to place [1 - " + totalCards + "]?");
+		while (cardNumber < 1 || cardNumber > totalCards) {
 			try {
 				cardNumber = reader.nextInt();
 			} catch (InputMismatchException noInt) {
@@ -250,10 +269,7 @@ public class CardBattleIO {
 
 	// Checks for a winner and returns who won
 
-	public void showWinner() {
-		Player winner = board.getWinner();
-		if (winner != null) {
-			System.out.println("The winner of the game was " + winner.getName() + "!");
-		}
+	public static void showWinner(Player winner) {
+		System.out.println("The winner of the game was " + winner.getName() + "!\n");
 	}
 }

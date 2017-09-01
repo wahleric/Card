@@ -163,35 +163,6 @@ public class Board {
 		turn = 1;
 	}
 
-	// Gets a given Node's type of zone bonus
-
-	public String getZoneBonus(int nodeNumber) {
-		return board[nodeNumber - 1].getZonetype();
-	}
-
-	// Sets a given Node to have the given type of zone bonus
-
-	public void setZoneBonus(int nodeNumber, String zoneType) {
-		board[nodeNumber - 1].setZoneType(zoneType);
-	}
-
-	// If the game is over, returns the Player who has won. Otherwise, returns a
-	// new Player named "a tie" if the game was
-	// a tie, or returns null if the game is not over
-
-	public Player getWinner() {
-		if (human.getCurrentHP() > 0 && computer.getCurrentHP() <= 0) {
-			return human;
-		}
-		if (human.getCurrentHP() <= 0 && computer.getCurrentHP() > 0) {
-			return computer;
-		}
-		if (human.getCurrentHP() <= 0 && computer.getCurrentHP() <= 0) {
-			return new Player("a tie", 0);
-		}
-		return null;
-	}
-
 	// Returns a String representation of the current status of the board
 
 	public String toString() {
@@ -398,14 +369,12 @@ public class Board {
 	private class Node {
 
 		private Card currentCard;
-		private String zoneType;
 
 		// Constructor takes a node number and creates a blank node with that
 		// number
 
 		public Node() {
 			setCurrentCard(null);
-			setZoneType("");
 		}
 
 		// Returns the current Card placed in this Node
@@ -414,22 +383,10 @@ public class Board {
 			return currentCard;
 		}
 
-		// Returns whether this Node currently has a special zone active
-
-		public String getZonetype() {
-			return zoneType;
-		}
-
 		// Sets the current Card placed in this Node
 
 		public void setCurrentCard(Card card) {
 			this.currentCard = card;
-		}
-
-		// Sets the current status of hotZone on this Node
-
-		public void setZoneType(String zoneType) {
-			this.zoneType = zoneType;
 		}
 
 		// Removes a Card placed in this node and returns it
