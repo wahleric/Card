@@ -77,17 +77,20 @@ public class CardBattleIO {
 		Card card = pickCard();
 		int nodeNumber = pickNode();
 		board.placeCard(board.getHumanPlayer(), card, nodeNumber);
+		if (board.getZoneAtNode(nodeNumber) != null) {
+			CardBattleAI.applyZoneBonus(card, board.getZoneAtNode(nodeNumber));
+		}
 		board.drawCard(board.getHumanPlayer());
 	}
-	
+
 	// Prints that it is now the given player's turn
-	
+
 	public static void showTurn(Player player) {
 		System.out.println(player.getName() + "'s move!\n");
 	}
-	 
+
 	// Prints that the turn is now over
-	
+
 	public static void roundOver() {
 		System.out.println("Next turn!\n");
 	}
@@ -107,17 +110,15 @@ public class CardBattleIO {
 	// monster
 
 	public static void showImpairedBonus() {
-		System.out.println(
-				"Nearby monsters are coming to the aid of impaired monsters! Their stats are increased!\n");
+		System.out.println("Nearby monsters are coming to the aid of impaired monsters! Their stats are increased!\n");
 	}
-	
-	// Prints a message that a monster has come to the aid of an impaired
-		// monster
 
-		public static void showChargedBonus() {
-			System.out.println(
-					"Charged monsters are building power! Their attack is increased!\n");
-		}
+	// Prints a message that a monster has come to the aid of an impaired
+	// monster
+
+	public static void showChargedBonus() {
+		System.out.println("Charged monsters are building power! Their attack is increased!\n");
+	}
 
 	// Prints the current status of the board to the console
 

@@ -63,6 +63,19 @@ public class Board {
 		return board[nodeNumber - 1].getCard();
 	}
 
+	// Returns the Zone that is currently in the given Node. Returns null if
+	// there is no zone.
+
+	public Zone getZoneAtNode(int nodeNumber) {
+		return board[nodeNumber - 1].getZoneBonus();
+	}
+	
+	//Applies a Zone bonus to a given Node on the board
+	
+	public void generateZoneBonus(Zone zone, int nodeNumber) {
+		board[nodeNumber - 1].setZoneBonus(zone);
+	}
+
 	// Places a card in a Node on the Battlefield. Returns true if successful,
 	// false otherwise.
 
@@ -116,9 +129,10 @@ public class Board {
 	public boolean deckIsEmpty() {
 		return deck.isEmpty();
 	}
-	
-	// Returns true if this Board is full (has no open Nodes left to place Cards in)
-	
+
+	// Returns true if this Board is full (has no open Nodes left to place Cards
+	// in)
+
 	public boolean isFull() {
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
 			if (getCardAtNode(nodeNumber) == null) {
@@ -138,11 +152,12 @@ public class Board {
 
 	public void resetBoard() {
 
-		// Remove all Cards from the board
+		// Remove all Cards and zone bonuses from the board
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
 			if (!(getCardAtNode(nodeNumber) == null)) {
 				removeCard(nodeNumber);
 			}
+			generateZoneBonus(null, nodeNumber);
 		}
 
 		// Return all cards from Players' hands
@@ -161,6 +176,7 @@ public class Board {
 		human.reset();
 		computer.reset();
 		turn = 1;
+		
 	}
 
 	// Returns a String representation of the current status of the board
@@ -171,20 +187,18 @@ public class Board {
 		String computerHP = computer.toString();
 		s += humanHP;
 		int spacing = 131 - (humanHP.length() + computerHP.length());
-		for (int space = 0; space < spacing; space++) {
-			s += " ";
-		}
+		s += padString(" ", spacing);
 		s += computerHP;
 		s += "\n\n" + border();
 		for (int level = 0; level < 5; level++) {
 			s += firstLine(level);
-			s += spacerLine();
+			s += zoneLine(level);
 			s += monsterNameLine(level);
 			s += hPLine(level);
 			s += middleLine(level);
 			s += spacerLine();
 			s += monsterOwnerLine(level);
-			s += spacerLine();
+			s += zoneLine(level);
 			s += lastLine(level);
 			s += border();
 		}
@@ -200,15 +214,29 @@ public class Board {
 		}
 		return border;
 	}
+	
+	//Private helper method for toString()
+	
+	private String zoneLine(int level) {
+		String zoneLine = "|";
+		for (int boxNumber = 1; boxNumber < 6; boxNumber++) {
+			Zone zone = getZoneAtNode(5 * level + boxNumber);
+			if (zone != null) {
+				zoneLine += padString("* " + zone.getType().toUpperCase() + " ZONE *", 25) + "|";
+			} else {
+				zoneLine += spacerBox();
+			}
+		}
+		zoneLine += "\n";
+		return zoneLine;
+	}
 
 	// Private helper method for toString()
 
 	private String spacerLine() {
 		String spacer = "|\n";
 		for (int boxNumber = 1; boxNumber < 6; boxNumber++) {
-			for (int spaceNumber = 0; spaceNumber < 25; spaceNumber++) {
-				spacer = " " + spacer;
-			}
+			spacer = padString(" ", 25) + spacer;
 			spacer = "|" + spacer;
 		}
 		return spacer;
@@ -218,9 +246,7 @@ public class Board {
 
 	private String spacerBox() {
 		String spacer = "";
-		for (int spaceNumber = 0; spaceNumber < 25; spaceNumber++) {
-			spacer += " ";
-		}
+		spacer += padString(" ", 25);
 		spacer += "|";
 		return spacer;
 	}
@@ -234,8 +260,7 @@ public class Board {
 			if (card == null) {
 				top += spacerBox();
 			} else {
-				String upperAP = "" + card.getCurrentUpperAP();
-				top += padString(upperAP, 25);
+				top += padString("" + card.getCurrentUpperAP(), 25);
 				top += "|";
 			}
 		}
@@ -252,8 +277,7 @@ public class Board {
 			if (card == null) {
 				bottom += spacerBox();
 			} else {
-				String lowerAP = "" + card.getCurrentLowerAP();
-				bottom += padString(lowerAP, 25);
+				bottom += padString("" + card.getCurrentLowerAP(), 25);
 				bottom += "|";
 			}
 		}
@@ -270,8 +294,7 @@ public class Board {
 			if (card == null) {
 				mNL += spacerBox();
 			} else {
-				String name = card.getName() + "";
-				mNL += padString(name, 25);
+				mNL += padString(card.getName(), 25);
 				mNL += "|";
 			}
 		}
@@ -313,9 +336,7 @@ public class Board {
 				String rightAttack = card.getCurrentRightAP() + "  ";
 				int spacing = 25 - (leftAttack.length() + rightAttack.length());
 				String temp = leftAttack;
-				for (int spaceNumber = 0; spaceNumber < spacing; spaceNumber++) {
-					temp += " ";
-				}
+				temp += padString(" ", spacing);
 				temp += rightAttack + "|";
 				middleLine += temp;
 			}
@@ -333,8 +354,7 @@ public class Board {
 			if (card == null) {
 				mOL += spacerBox();
 			} else {
-				String owner = card.getOwner().getName();
-				mOL += padString(owner, 25);
+				mOL += padString(card.getOwner().getName(), 25);
 				mOL += "|";
 			}
 		}
@@ -369,18 +389,31 @@ public class Board {
 	private class Node {
 
 		private Card currentCard;
+		private Zone zoneBonus;
 
 		// Constructor takes a node number and creates a blank node with that
 		// number
 
 		public Node() {
 			setCurrentCard(null);
+			zoneBonus = null;
 		}
 
 		// Returns the current Card placed in this Node
 
 		public Card getCard() {
 			return currentCard;
+		}
+
+		// Returns the zone bonus currently in place in this Node. Returns null
+		// if no bonus
+
+		public Zone getZoneBonus() {
+			return zoneBonus;
+		}
+		
+		public void setZoneBonus(Zone zone) {
+			zoneBonus = zone;
 		}
 
 		// Sets the current Card placed in this Node

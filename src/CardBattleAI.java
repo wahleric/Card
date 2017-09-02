@@ -156,10 +156,15 @@ public class CardBattleAI {
 	private void easyAI() {
 		boolean placed = false;
 		while (!placed) {
-			int nodeToPlace = r.nextInt(25) + 1;
+			int nodeToPlay = r.nextInt(25) + 1;
 			int randomCardIndex = r.nextInt(board.getComputerPlayer().getHand().size());
-			Card cardToPlace = board.getComputerPlayer().getHand().get(randomCardIndex);
-			placed = board.placeCard(board.getComputerPlayer(), cardToPlace, nodeToPlace);
+			Card cardToPlay = board.getComputerPlayer().getHand().get(randomCardIndex);
+			placed = board.placeCard(board.getComputerPlayer(), cardToPlay, nodeToPlay);
+			if (placed) {
+				if (board.getZoneAtNode(nodeToPlay) != null) {
+					applyZoneBonus(cardToPlay, board.getZoneAtNode(nodeToPlay));
+				}
+			}
 		}
 	}
 
@@ -231,6 +236,9 @@ public class CardBattleAI {
 			}
 		}
 		board.placeCard(board.getComputerPlayer(), cardToPlay, nodeToPlay);
+		if (board.getZoneAtNode(nodeToPlay) != null) {
+			applyZoneBonus(cardToPlay, board.getZoneAtNode(nodeToPlay));
+		}
 	}
 
 	// Provides an AI with hard difficulty by taking into account more factors
@@ -291,7 +299,7 @@ public class CardBattleAI {
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
 			Card card = board.getCardAtNode(nodeNumber);
 			if (card != null && card.getType().equals("Impaired")) {
-				if (r.nextDouble() > 0.7) {
+				if (r.nextDouble() > 0.80) {
 					Card cardToAdd = board.drawCard(null);
 					card.setCurrentHP(card.getCurrentHP() + (cardToAdd.getMaxHP() / 2));
 					card.setCurrentAP(card.getCurrentUpperAP() + (cardToAdd.getCurrentUpperAP() / 2),
@@ -375,5 +383,25 @@ public class CardBattleAI {
 			return new Player("a tie", 0);
 		}
 		return null;
+	}
+	
+	// Traverses the nodes on the Board and randomly creates bonus zones
+	
+	public void generateZoneBonuses() {
+		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
+			//10% chance for each Node to have a zone bonus of some type
+			if (r.nextDouble() > 0.9) {
+				int zoneChoice = r.nextInt(2);
+				if (zoneChoice == 1) {
+					board.generateZoneBonus(new HotZone(), nodeNumber);
+				} else {
+					board.generateZoneBonus(new ColdZone(), nodeNumber);
+				}
+			}
+		}
+	}
+	
+	public static void applyZoneBonus(Card card, Zone zone) {
+		zone.applyZoneBonus(card);
 	}
 }

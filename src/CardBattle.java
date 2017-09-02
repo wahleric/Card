@@ -33,11 +33,10 @@ public class CardBattle {
 
 	public static void gameLoop(Board board, CardBattleAI ai, CardBattleIO io) {
 		board.resetBoard();
+		ai.generateZoneBonuses();
 		ai.initialDraw();
 		if (CardBattleIO.rollDice()) { // Human won the toss and has the
 										// advantage of going second each turn
-			CardBattleIO.wait(2);
-			io.printBoard();
 			while (ai.getWinner() == null) {
 				if (ai.applyImpairedBonus()) {
 					CardBattleIO.showImpairedBonus();
