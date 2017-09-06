@@ -8,7 +8,7 @@ import java.util.*;
 
 public class CardBattleAI {
 
-	private final int INITIAL_DEAL_NUMBER = 10;
+	private final int INITIAL_DEAL_NUMBER = 5;
 	private static final int CARDS_IN_DECK = 100;
 
 	private String difficulty;
@@ -182,7 +182,7 @@ public class CardBattleAI {
 
 					int damageGiven = 0;
 					int damageTaken = 0;
-					int sideBonus = 0;
+					int hardBonus = 0;
 					int score;
 
 					// Scan enemies above
@@ -223,10 +223,10 @@ public class CardBattleAI {
 
 					// If the difficulty is "Hard", apply additional checks
 					if (difficulty.equalsIgnoreCase("Hard")) {
-						sideBonus = hardAI(nodeNumber, card);
+						hardBonus = hardAI(nodeNumber, card);
 					}
 
-					score = (damageGiven - damageTaken) + sideBonus;
+					score = (damageGiven - damageTaken) + hardBonus;
 					if (score > maxScore) {
 						cardToPlay = card;
 						nodeToPlay = nodeNumber;
@@ -288,6 +288,7 @@ public class CardBattleAI {
 				potentialDamage -= card.getCurrentRightAP();
 			}
 		}
+		
 		return potentialDamage;
 	}
 

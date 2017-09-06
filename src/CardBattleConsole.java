@@ -7,7 +7,7 @@ import java.io.*;
  * Author: Eric Wahlquist
  */
 
-public class CardBattle {
+public class CardBattleConsole {
 
 	public static final int PLAYER_MAX_HP = 500;
 
@@ -104,6 +104,5 @@ public class CardBattle {
 				}
 			}
 		}
-
 	}
 }
