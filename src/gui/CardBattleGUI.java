@@ -10,12 +10,11 @@ public class CardBattleGUI {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				CBMainFrame frame = new CBMainFrame("Card Battle");
-				frame.setSize(1024, 768);
+				frame.setPreferredSize(new Dimension(1024, 768));
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.pack();
 				frame.setVisible(true);
 			}
 		});
-		
 	}
-
 }

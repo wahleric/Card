@@ -6,11 +6,14 @@ import java.awt.event.*;
 
 public class CBAbout extends JFrame {
 
-	public CBAbout(String title) {
+	private static final long serialVersionUID = 1L;
+
+	public CBAbout() {
 		
-		super(title);
+		super("About");
 		
 		setLayout(new GridBagLayout());
+		getContentPane().setBackground(Color.WHITE);
 		
 		// Create text for Title
 		JTextArea gameName = new JTextArea();

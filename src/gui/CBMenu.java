@@ -6,8 +6,15 @@ import java.awt.event.*;
 
 public class CBMenu extends JMenuBar {
 	
+	private static final long serialVersionUID = 1L;
+	
+	private CBAbout aboutFrame;
+	private CBInstructions instructionsFrame;
+	
 	public CBMenu() {
 		super();
+		setOpaque(true);
+		setBackground(Color.RED);
 		
 		/*
 		 * Create "Game" menu
@@ -43,8 +50,6 @@ public class CBMenu extends JMenuBar {
 			}
 		});
 		
-		
-		
 		// Add all items to "Game"
 		game.add(newGame);
 		newGame.add(easy);
@@ -57,21 +62,40 @@ public class CBMenu extends JMenuBar {
 		add(game);
 		
 		/*
-		 * Create "About" tab
+		 * Create "Help" tab
 		 */
 		
-		JMenu about = new JMenu("About");
-		about.setMnemonic(KeyEvent.VK_A);
+		JMenu help = new JMenu("Help");
+		help.setMnemonic(KeyEvent.VK_H);
+		
+		// Add "Instructions" menu item
+		
+		JMenuItem instructionsCB = new JMenuItem("Instructions    [I]");
+		instructionsCB.setMnemonic(KeyEvent.VK_I);
+		
+		// Add action for "Instructions"
+		
+		instructionsFrame = new CBInstructions();
+		instructionsFrame.setSize(850, 650);
+		instructionsFrame.setLocationRelativeTo(null);
+		instructionsFrame.setResizable(false);
+		
+		instructionsCB.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				instructionsFrame.setVisible(true);
+			}
+		});
 		
 		// Add "About Card Battle" menu item
 		
 		JMenuItem aboutCB = new JMenuItem("About Card Battle    [A]");
 		aboutCB.setMnemonic(KeyEvent.VK_C);
 		
-		// Add action for "About"
+		// Add action for "About Card Battle"
 		
-		CBAbout aboutFrame = new CBAbout("About");
-		aboutFrame.setSize(300, 200);
+		aboutFrame = new CBAbout();
+		aboutFrame.setSize(320, 240);
+		aboutFrame.setLocationRelativeTo(null);
 		
 		aboutCB.addActionListener(new ActionListener() {
 			
@@ -81,11 +105,12 @@ public class CBMenu extends JMenuBar {
 			}
 		});
 		
-		// Add all items to "About"
+		// Add all items to "Help"
 		
-		about.add(aboutCB);
+		help.add(instructionsCB);
+		help.add(aboutCB);
 		
-		// Add "About" to menu bar
-		add(about);
+		// Add "Help" to menu bar
+		add(help);
 	}
 }
