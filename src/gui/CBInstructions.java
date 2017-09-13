@@ -17,8 +17,8 @@ public class CBInstructions extends JFrame {
 
 		JTabbedPane tabbedPane = new JTabbedPane();
 
-		JComponent gamePanel = makeTextPanel(new ImageIcon("InstructionsGame.jpg"));
-		JComponent cardPanel = makeTextPanel(new ImageIcon("InstructionsCard.jpg"));
+		JComponent gamePanel = makeTextPanel(new ImageIcon("art/instructionsGame.jpg"));
+		JComponent cardPanel = makeTextPanel(new ImageIcon("art/instructionsCard.jpg"));
 		JComponent typePanel = makeTextPanel(new ImageIcon("InstructionsGame.jpg"));
 		JComponent zonePanel = makeTextPanel(new ImageIcon("InstructionsGame.jpg"));
 		

@@ -220,7 +220,7 @@ public class CardBattleIO {
 	// Reads the game instructions in from Instructions.txt
 
 	public static void instructions() throws IOException {
-		File file = new File("Instructions.txt");
+		File file = new File("docs/instructions.txt");
 		Scanner fileReader = new Scanner(file);
 		while (fileReader.hasNextLine()) {
 			String line = fileReader.nextLine();

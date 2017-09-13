@@ -157,7 +157,7 @@ public class CardGenerator {
 	// into a map
 
 	private void readFromAdj() throws IOException {
-		File typesAndAdjs = new File("adjAndType.txt");
+		File typesAndAdjs = new File("docs/adjAndType.txt");
 		Scanner reader = new Scanner(typesAndAdjs);
 		while (reader.hasNextLine()) {
 			String type = reader.next();
@@ -175,7 +175,7 @@ public class CardGenerator {
 	// Reads names from names.txt and places them in the names List
 
 	private void readFromNames() throws IOException {
-		File namePossibilities = new File("names.txt");
+		File namePossibilities = new File("docs/names.txt");
 		Scanner reader = new Scanner(namePossibilities);
 		while (reader.hasNextLine()) {
 			names.add(reader.nextLine());
