@@ -4,8 +4,8 @@
 
 ### Features
 
-> *Three levels of AI difficulty
+> * Three levels of AI difficulty
 
-> *8 monster types, each with its own strengths and weaknesses
+> * 8 monster types, each with its own strengths and weaknesses
 
-> *Random card generation: New experience each time
+> * Random card generation: New experience each time
