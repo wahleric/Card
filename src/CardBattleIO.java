@@ -76,10 +76,7 @@ public class CardBattleIO {
 		showPlayersCards();
 		Card card = pickCard();
 		int nodeNumber = pickNode();
-		board.placeCard(board.getHumanPlayer(), card, nodeNumber);
-		if (board.getZoneAtNode(nodeNumber) != null) {
-			CardBattleAI.applyZoneBonus(card, board.getZoneAtNode(nodeNumber));
-		}
+		board.placeCard(card, nodeNumber);
 		board.drawCard(board.getHumanPlayer());
 	}
 

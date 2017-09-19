@@ -17,14 +17,14 @@ public class Board {
 	private int turn;
 	private Node[] board;
 
-	// Explicit private default constructor that prevents a null battlefield
+	// Explicit private default constructor that prevents an invalid Board
 	// from being created
 
 	@SuppressWarnings("unused")
 	private Board() {
 	}
 
-	// Main constructor used for creating Battlefield objects
+	// Main constructor used for creating Board objects
 
 	public Board(Player human, Player computer) throws IOException {
 		this.human = human;
@@ -38,89 +38,38 @@ public class Board {
 		}
 	}
 
-	// Returns the human Player of this board
+	// Returns the human Player of this Board
 
 	public Player getHumanPlayer() {
 		return human;
 	}
 
-	// Returns the computer Player of this board
+	// Returns the computer Player of this Board
 
 	public Player getComputerPlayer() {
 		return computer;
 	}
 
-	// Returns the current turn number of this board
+	// Returns the current turn number of this Board
 
 	public int getTurn() {
 		return turn;
 	}
 
-	// Returns the Card placed in a given Node on the board. Returns null if the
+	// Returns the Card placed in a given Node on this Board. Returns null if
+	// the
 	// Node is empty
 
 	public Card getCardAtNode(int nodeNumber) {
 		return board[nodeNumber - 1].getCard();
 	}
 
-	// Returns the Zone that is currently in the given Node. Returns null if
-	// there is no zone.
+	// Returns the Zone bonus that is currently on the given Node. Returns null
+	// if
+	// there is no Zone bonus.
 
 	public Zone getZoneAtNode(int nodeNumber) {
 		return board[nodeNumber - 1].getZoneBonus();
-	}
-	
-	//Applies a Zone bonus to a given Node on the board
-	
-	public void generateZoneBonus(Zone zone, int nodeNumber) {
-		board[nodeNumber - 1].setZoneBonus(zone);
-	}
-
-	// Places a card in a Node on the Battlefield. Returns true if successful,
-	// false otherwise.
-
-	public boolean placeCard(Player player, Card card, int nodeNumber) {
-		if (getCardAtNode(nodeNumber) == null) {
-			board[nodeNumber - 1].setCurrentCard(card);
-			if (player.getHand().contains(card)) {
-				player.getHand().remove(card);
-			} else {
-				throw new IllegalArgumentException("Invalid: Card is not in hand");
-			}
-			return true;
-		}
-		return false;
-	}
-
-	// Removes a Card from a Node on the Battlefield and returns it
-
-	public Card removeCard(int nodeNumber) {
-		Card card = getCardAtNode(nodeNumber);
-		if (card == null) {
-			throw new IllegalArgumentException("Invalid: Node is empty");
-		}
-		discardPile.addCard(card);
-		return board[nodeNumber - 1].removeCard();
-	}
-
-	// Draws a card from the deck into a Player's hand
-
-	public Card drawCard(Player player) {
-		if (deckIsEmpty()) {
-			throw new IllegalArgumentException("Invalid: Deck is empty");
-		}
-		Card card = deck.drawCard();
-		card.setOwner(player);
-		if (player != null) {
-			player.getHand().add(card);
-		}
-		return card;
-	}
-
-	// Adds a card to the deck
-
-	public void addCard(Card card) {
-		deck.addCard(card);
 	}
 
 	// Returns true if the deck of all monster cards to draw from is empty;
@@ -142,6 +91,57 @@ public class Board {
 		return true;
 	}
 
+	// Creates a Zone bonus on a given Node on the board
+
+	public void generateZoneBonus(Zone zone, int nodeNumber) {
+		board[nodeNumber - 1].setZoneBonus(zone);
+	}
+
+	// Places a card in a Node on the Board. Returns true if successful,
+	// false otherwise.
+
+	public boolean placeCard(Card card, int nodeNumber) {
+		if (getCardAtNode(nodeNumber) == null) {
+			board[nodeNumber - 1].setCurrentCard(card);
+			if (!card.getOwner().getHand().remove(card)) {
+				throw new IllegalArgumentException("Invalid: Card is not in hand");
+			}
+			return true;
+		}
+		return false;
+	}
+
+	// Removes a Card from a Node on the Board and returns it
+
+	public Card removeCard(int nodeNumber) {
+		Card card = getCardAtNode(nodeNumber);
+		if (card == null) {
+			throw new IllegalArgumentException("Invalid: Node is empty");
+		}
+		discardPile.addCard(card);
+		return board[nodeNumber - 1].removeCard();
+	}
+
+	// Draws a card from this Board's Deck into a Player's hand
+
+	public Card drawCard(Player player) {
+		if (deckIsEmpty()) {
+			throw new IllegalArgumentException("Invalid: Deck is empty");
+		}
+		Card card = deck.drawCard();
+		if (player != null) {
+			card.setOwner(player);
+			player.getHand().add(card);
+		}
+		return card;
+	}
+
+	// Adds a card to this Board's Deck
+
+	public void addCardToDeck(Card card) {
+		deck.addCard(card);
+	}
+
 	// Increments the turn counter by 1
 
 	public void incrementTurn() {
@@ -153,30 +153,33 @@ public class Board {
 	public void resetBoard() {
 
 		// Remove all Cards and zone bonuses from the board
+
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
-			if (!(getCardAtNode(nodeNumber) == null)) {
+			if (getCardAtNode(nodeNumber) != null) {
 				removeCard(nodeNumber);
 			}
 			generateZoneBonus(null, nodeNumber);
 		}
 
-		// Return all cards from Players' hands
+		// Return all cards from Players' hands and the discard pile
+
 		for (Card card : getHumanPlayer().getHand()) {
-			addCard(card);
+			addCardToDeck(card);
 		}
 		for (Card card : getComputerPlayer().getHand()) {
-			addCard(card);
+			addCardToDeck(card);
 		}
 		while (!discardPile.isEmpty()) {
-			addCard(discardPile.drawCard());
+			addCardToDeck(discardPile.drawCard());
 		}
 
 		// Reset the Deck, Players' HP and hands, and reset the turn counter
+
 		deck.reset();
 		human.reset();
 		computer.reset();
 		turn = 1;
-		
+
 	}
 
 	// Returns a String representation of the current status of the board
@@ -205,7 +208,7 @@ public class Board {
 		return s;
 	}
 
-	// Private helper method for toString()
+	// Private helper method for toString() displays a border between Nodes
 
 	private String border() {
 		String border = "\n";
@@ -214,9 +217,10 @@ public class Board {
 		}
 		return border;
 	}
-	
-	//Private helper method for toString()
-	
+
+	// Private helper method for toString() displays a line that describes the
+	// Zone type of a Node if applicable
+
 	private String zoneLine(int level) {
 		String zoneLine = "|";
 		for (int boxNumber = 1; boxNumber < 6; boxNumber++) {
@@ -231,7 +235,8 @@ public class Board {
 		return zoneLine;
 	}
 
-	// Private helper method for toString()
+	// Private helper method for toString() displays a line with only spaces and
+	// Node dividers (|)
 
 	private String spacerLine() {
 		String spacer = "|\n";
@@ -242,7 +247,8 @@ public class Board {
 		return spacer;
 	}
 
-	// Private helper method for toString()
+	// Private helper method for toString() displays one Node worth of spaces
+	// followed by a Node divider (|)
 
 	private String spacerBox() {
 		String spacer = "";
@@ -251,7 +257,8 @@ public class Board {
 		return spacer;
 	}
 
-	// Private helper method for toString()
+	// Private helper method for toString() displays upper AP of each Node's
+	// current card if applicable
 
 	private String firstLine(int level) {
 		String top = "|";
@@ -268,7 +275,8 @@ public class Board {
 		return top;
 	}
 
-	// Private helper method for toString()
+	// Private helper method for toString() displays lower AP of each Node's
+	// current card if applicable
 
 	private String lastLine(int level) {
 		String bottom = "|";
@@ -285,7 +293,8 @@ public class Board {
 		return bottom;
 	}
 
-	// Private helper method for toString()
+	// Private helper method for toString() displays the monster name for each
+	// Node's current Card if applicable
 
 	private String monsterNameLine(int level) {
 		String mNL = "|";
@@ -302,7 +311,8 @@ public class Board {
 		return mNL;
 	}
 
-	// Private helper method for toString()
+	// Private helper method for toString() displays each Node's monster's
+	// current and maximum HP if applicable
 
 	private String hPLine(int level) {
 		String hPLine = "|";
@@ -323,7 +333,8 @@ public class Board {
 		return hPLine;
 	}
 
-	// Private helper method for toString()
+	// Private helper method for toString() displays left and right AP for each
+	// Node's monster if applicable
 
 	private String middleLine(int level) {
 		String middleLine = "|";
@@ -345,7 +356,8 @@ public class Board {
 		return middleLine;
 	}
 
-	// Private helper method for toString()
+	// Private helper method for toString() displays each Node's monster's owner
+	// if applicable
 
 	private String monsterOwnerLine(int level) {
 		String mOL = "|";
@@ -362,7 +374,8 @@ public class Board {
 		return mOL;
 	}
 
-	// Private helper method for toString()
+	// Private helper method for toString() pads the given String with the given
+	// number of spaces, with the String as centered as possible
 
 	private String padString(String toPad, int totalSpaces) {
 		String s = "";
@@ -391,8 +404,7 @@ public class Board {
 		private Card currentCard;
 		private Zone zoneBonus;
 
-		// Constructor takes a node number and creates a blank node with that
-		// number
+		// Constructor creates a blank node
 
 		public Node() {
 			setCurrentCard(null);
@@ -411,7 +423,9 @@ public class Board {
 		public Zone getZoneBonus() {
 			return zoneBonus;
 		}
-		
+
+		// Sets the zone bonus of this Node
+
 		public void setZoneBonus(Zone zone) {
 			zoneBonus = zone;
 		}
@@ -420,6 +434,9 @@ public class Board {
 
 		public void setCurrentCard(Card card) {
 			this.currentCard = card;
+			if (zoneBonus != null) {
+				zoneBonus.applyZoneBonus(card);
+			}
 		}
 
 		// Removes a Card placed in this node and returns it

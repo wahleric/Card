@@ -35,7 +35,7 @@ public class CardGenerator {
 
 	// Creates a CardGenerator that is ready to create Cards
 
-	public CardGenerator() throws IOException {
+	public CardGenerator() {
 		names = new ArrayList<String>();
 		typesAndAdjectives = new HashMap<String, ArrayList<String>>();
 		readFromAdj();
@@ -156,31 +156,38 @@ public class CardGenerator {
 	// Reads types and adjectives from adjAndType.txt file and organizes them
 	// into a map
 
-	private void readFromAdj() throws IOException {
-		File typesAndAdjs = new File("docs/adjAndType.txt");
-		Scanner reader = new Scanner(typesAndAdjs);
-		while (reader.hasNextLine()) {
-			String type = reader.next();
-			String adjective = reader.next();
-			if (!typesAndAdjectives.containsKey(type)) {
-				typesAndAdjectives.put(type, new ArrayList<String>());
-				typesAndAdjectives.get(type).add(adjective);
-			} else {
-				typesAndAdjectives.get(type).add(adjective);
+	private void readFromAdj() {
+		try {
+			File typesAndAdjs = new File("docs/adjAndType.txt");
+			Scanner reader = new Scanner(typesAndAdjs);
+			while (reader.hasNextLine()) {
+				String type = reader.next();
+				String adjective = reader.next();
+				if (!typesAndAdjectives.containsKey(type)) {
+					typesAndAdjectives.put(type, new ArrayList<String>());
+					typesAndAdjectives.get(type).add(adjective);
+				} else {
+					typesAndAdjectives.get(type).add(adjective);
+				}
 			}
+			reader.close();
+		} catch (Exception e) {
 		}
-		reader.close();
 	}
 
 	// Reads names from names.txt and places them in the names List
 
-	private void readFromNames() throws IOException {
-		File namePossibilities = new File("docs/names.txt");
-		Scanner reader = new Scanner(namePossibilities);
-		while (reader.hasNextLine()) {
-			names.add(reader.nextLine());
+	private void readFromNames() {
+		try {
+			File namePossibilities = new File("docs/names.txt");
+			Scanner reader = new Scanner(namePossibilities);
+			while (reader.hasNextLine()) {
+				names.add(reader.nextLine());
+			}
+			reader.close();
+		} catch (Exception e) {	
 		}
-		reader.close();
+		
 	}
 
 }

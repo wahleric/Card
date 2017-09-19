@@ -39,7 +39,7 @@ public class CardBattleAI {
 	public void initializeDeck() throws IOException {
 		CardGenerator generator = new CardGenerator();
 		for (int cardNumber = 1; cardNumber <= CARDS_IN_DECK; cardNumber++) {
-			board.addCard(generator.generateRandomCard());
+			board.addCardToDeck(generator.generateRandomCard());
 		}
 	}
 
@@ -57,15 +57,20 @@ public class CardBattleAI {
 
 	public void endTurn() {
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
+
 			// For each Node:
 			// Get information about the Card at the Node
+
 			Card card = board.getCardAtNode(nodeNumber);
+
 			// If the Card exists, deal appropriate damage to adjacent Cards
+
 			if (card != null) {
 				Player owner = card.getOwner();
 
 				// Deal attacks to any enemy Card below this Card and apply any
 				// contamination
+
 				if (nodeNumber > 5) {
 					Card cardAbove = board.getCardAtNode(nodeNumber - 5);
 					if (!(cardAbove == null) && cardAbove.getOwner() != owner) {
@@ -78,6 +83,7 @@ public class CardBattleAI {
 
 				// Deal attacks to any enemy Card to the left of this Card and
 				// apply any contamination
+
 				if ((nodeNumber - 1) % 5 != 0) {
 					Card cardLeft = board.getCardAtNode(nodeNumber - 1);
 					if (!(cardLeft == null) && cardLeft.getOwner() != owner) {
@@ -90,6 +96,7 @@ public class CardBattleAI {
 
 				// Deal attacks to any enemy Card to the right of this Card and
 				// apply any contamination
+
 				if (nodeNumber % 5 != 0) {
 					Card cardRight = board.getCardAtNode(nodeNumber + 1);
 					if (!(cardRight == null) && cardRight.getOwner() != owner) {
@@ -102,6 +109,7 @@ public class CardBattleAI {
 
 				// Deal attacks to any enemy Card below this Card and apply any
 				// contamination
+
 				if (nodeNumber < 21) {
 					Card cardBelow = board.getCardAtNode(nodeNumber + 5);
 					if (!(cardBelow == null) && cardBelow.getOwner() != owner) {
@@ -116,6 +124,7 @@ public class CardBattleAI {
 
 		// Deal any contamination damage across the board (3-7 HP randomly per
 		// turn)
+
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
 			Card card = board.getCardAtNode(nodeNumber);
 			int contaminationDamage = r.nextInt(5) + 3;
@@ -128,6 +137,7 @@ public class CardBattleAI {
 
 		// After all damage is dealt across the board, remove any dead monsters
 		// and apply the proper damage to their owners
+
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
 			Card card = board.getCardAtNode(nodeNumber);
 			if (card != null && card.getCurrentHP() <= 0) {
@@ -136,6 +146,7 @@ public class CardBattleAI {
 			}
 		}
 		// Increment the turn counter
+
 		board.incrementTurn();
 	}
 
@@ -159,12 +170,7 @@ public class CardBattleAI {
 			int nodeToPlay = r.nextInt(25) + 1;
 			int randomCardIndex = r.nextInt(board.getComputerPlayer().getHand().size());
 			Card cardToPlay = board.getComputerPlayer().getHand().get(randomCardIndex);
-			placed = board.placeCard(board.getComputerPlayer(), cardToPlay, nodeToPlay);
-			if (placed) {
-				if (board.getZoneAtNode(nodeToPlay) != null) {
-					applyZoneBonus(cardToPlay, board.getZoneAtNode(nodeToPlay));
-				}
-			}
+			placed = board.placeCard(cardToPlay, nodeToPlay);
 		}
 	}
 
@@ -226,6 +232,9 @@ public class CardBattleAI {
 						hardBonus = hardAI(nodeNumber, card);
 					}
 
+					// Calculate the total score of the Card/Node combination
+					// and check if it is the best combination so far
+
 					score = (damageGiven - damageTaken) + hardBonus;
 					if (score > maxScore) {
 						cardToPlay = card;
@@ -235,10 +244,7 @@ public class CardBattleAI {
 				}
 			}
 		}
-		board.placeCard(board.getComputerPlayer(), cardToPlay, nodeToPlay);
-		if (board.getZoneAtNode(nodeToPlay) != null) {
-			applyZoneBonus(cardToPlay, board.getZoneAtNode(nodeToPlay));
-		}
+		board.placeCard(cardToPlay, nodeToPlay);
 	}
 
 	// Provides an AI with hard difficulty by taking into account more factors
@@ -250,6 +256,7 @@ public class CardBattleAI {
 				+ card.getCurrentRightAP();
 
 		// Check nodes above for wasted potential damage
+		
 		if (nodeNumber < 6) {
 			potentialDamage -= card.getCurrentUpperAP();
 		} else {
@@ -260,6 +267,7 @@ public class CardBattleAI {
 		}
 
 		// Check nodes below for wasted potential damage
+		
 		if (nodeNumber > 20) {
 			potentialDamage -= card.getCurrentLowerAP();
 		} else {
@@ -270,6 +278,7 @@ public class CardBattleAI {
 		}
 
 		// Check nodes to left for wasted potential damage
+		
 		if ((nodeNumber - 1) % 5 == 0) {
 			potentialDamage -= card.getCurrentLeftAP();
 		} else {
@@ -280,6 +289,7 @@ public class CardBattleAI {
 		}
 
 		// Check nodes to right for wasted potential damage
+		
 		if (nodeNumber % 5 == 0) {
 			potentialDamage -= card.getCurrentRightAP();
 		} else {
@@ -288,7 +298,7 @@ public class CardBattleAI {
 				potentialDamage -= card.getCurrentRightAP();
 			}
 		}
-		
+
 		return potentialDamage;
 	}
 
@@ -307,7 +317,7 @@ public class CardBattleAI {
 							card.getCurrentLowerAP() + (cardToAdd.getCurrentLowerAP() / 2),
 							card.getCurrentLeftAP() + (cardToAdd.getCurrentLeftAP() / 2),
 							card.getCurrentRightAP() + (cardToAdd.getCurrentRightAP() / 2));
-					board.addCard(cardToAdd);
+					board.addCardToDeck(cardToAdd);
 					bonusHappened = true;
 				}
 			}
@@ -324,7 +334,9 @@ public class CardBattleAI {
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
 			Card card = board.getCardAtNode(nodeNumber);
 			if (card != null && card.getType().equals("Charged")) {
+				
 				// Check if the player has a charged monster to the left
+				
 				if ((nodeNumber - 1) % 5 != 0) {
 					Card cardLeft = board.getCardAtNode(nodeNumber - 1);
 					if (cardLeft != null && cardLeft.getType().equalsIgnoreCase("Charged")
@@ -334,7 +346,9 @@ public class CardBattleAI {
 						bonusHappened = true;
 					}
 				}
+				
 				// Check if the player has a charged monster to the right
+				
 				if (nodeNumber % 5 != 0) {
 					Card cardRight = board.getCardAtNode(nodeNumber + 1);
 					if (cardRight != null && cardRight.getType().equalsIgnoreCase("Charged")
@@ -344,7 +358,9 @@ public class CardBattleAI {
 						bonusHappened = true;
 					}
 				}
+				
 				// Check if the player has a charged monster above
+				
 				if (nodeNumber > 5) {
 					Card cardAbove = board.getCardAtNode(nodeNumber - 5);
 					if (cardAbove != null && cardAbove.getType().equalsIgnoreCase("Charged")
@@ -354,7 +370,9 @@ public class CardBattleAI {
 						bonusHappened = true;
 					}
 				}
+				
 				// Check if the player has a charged monster below
+				
 				if (nodeNumber < 21) {
 					Card cardBelow = board.getCardAtNode(nodeNumber + 5);
 					if (cardBelow != null && cardBelow.getType().equalsIgnoreCase("Charged")
@@ -385,12 +403,12 @@ public class CardBattleAI {
 		}
 		return null;
 	}
-	
+
 	// Traverses the nodes on the Board and randomly creates bonus zones
-	
+
 	public void generateZoneBonuses() {
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
-			//10% chance for each Node to have a zone bonus of some type
+			// 10% chance for each Node to have a zone bonus of some type
 			if (r.nextDouble() > 0.9) {
 				int zoneChoice = r.nextInt(2);
 				if (zoneChoice == 1) {
@@ -400,9 +418,5 @@ public class CardBattleAI {
 				}
 			}
 		}
-	}
-	
-	public static void applyZoneBonus(Card card, Zone zone) {
-		zone.applyZoneBonus(card);
 	}
 }

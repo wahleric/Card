@@ -1,17 +1,28 @@
+/*
+ * This class represents a "hot zone" bonus that may occupy a node on the board. When a card is placed in the node,
+ * the given bonus in applyZoneBonus will be applied, which varies depending on the card placed.
+ * 
+ * Author: Eric Wahlquist
+ */
 
 public class HotZone implements Zone {
 
 	private String type;
-	
+
+	// Default constructor
+
 	public HotZone() {
 		type = "Hot";
 	}
-	
+
+	// Applies this special zone's bonus to the given Card
+
 	public void applyZoneBonus(Card card) {
-		if (card.getType().equalsIgnoreCase(type)) { // Card's AP is doubled
+		if (card.getType().equalsIgnoreCase("Hot")) { // Card's AP is doubled
 			card.setCurrentAP(card.getCurrentUpperAP() * 2, card.getCurrentLowerAP() * 2, card.getCurrentLeftAP() * 2,
 					card.getCurrentRightAP() * 2);
-		} else if (card.getType().equalsIgnoreCase("Cold")) { // Card's AP is quartered
+		} else if (card.getType().equalsIgnoreCase("Cold")) { // Card's AP is
+																// quartered
 			card.setCurrentAP(card.getCurrentUpperAP() / 4, card.getCurrentLowerAP() / 4, card.getCurrentLeftAP() / 4,
 					card.getCurrentRightAP() / 4);
 		} else { // Card's AP is halved
@@ -19,7 +30,9 @@ public class HotZone implements Zone {
 					card.getCurrentRightAP() / 2);
 		}
 	}
-	
+
+	// Returns the type of this Zone as a String
+
 	public String getType() {
 		return type;
 	}
