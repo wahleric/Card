@@ -16,15 +16,12 @@ import java.util.Scanner;
 
 public class CardGenerator {
 
-	// Total number of different possible Card types
+	// General information about monster cards
 
 	private static final int NUMBER_OF_TYPES = 8;
-
-	// Minimum HP of any monster Card
-
 	private static final int MINIMUM_HP = 20;
 
-	// List that holds possible monster names
+	// List holds possible monster names
 
 	private List<String> names;
 
@@ -33,28 +30,35 @@ public class CardGenerator {
 
 	private Map<String, ArrayList<String>> typesAndAdjectives;
 
+	// Random number generator for picking random Card attributes
+
+	private Random r;
+
 	// Creates a CardGenerator that is ready to create Cards
 
 	public CardGenerator() {
 		names = new ArrayList<String>();
 		typesAndAdjectives = new HashMap<String, ArrayList<String>>();
-		readFromAdj();
+		r = new Random();
+		readFromAdjectives();
 		readFromNames();
 	}
 
 	// Generates a random Card of any possible type
+
 	public Card generateRandomCard() {
 		return generateRandomCard(null);
 	}
 
 	// Generates a random Card of a specific type
+
 	public Card generateRandomCard(String type) {
 		Card card = new Card("", "", 0, 0, 0, 0, 0, 0, null);
-		if (type == null) {
+		if (type == null) { // Choose a random type
 			pickType(card);
-		} else if (!typesAndAdjectives.containsKey(type)) {
+		} else if (!typesAndAdjectives.containsKey(type)) { // Type is invalid
 			throw new IllegalArgumentException("Invalid: Card type does not exist");
-		} else {
+		} else { // Apply the given type to the card
 			card.setType(type);
 		}
 		pickAdjective(card);
@@ -69,7 +73,6 @@ public class CardGenerator {
 
 		String[] typeArray = new String[NUMBER_OF_TYPES];
 		typesAndAdjectives.keySet().toArray(typeArray);
-		Random r = new Random();
 		int randomType = r.nextInt(NUMBER_OF_TYPES);
 		String type = typeArray[randomType];
 		card.setType(type);
@@ -80,25 +83,25 @@ public class CardGenerator {
 
 	private void pickAdjective(Card card) {
 
-		Random r = new Random();
 		List<String> adjectives = typesAndAdjectives.get(card.getType());
 		int randomAdjective = r.nextInt(adjectives.size());
 		String adjective = adjectives.get(randomAdjective);
 		card.setName(adjective);
 	}
 
-	// Randomly chooses a noun from the names database for this Card's name
+	// Randomly chooses a noun from the names database for the Card's name and
+	// adds it to the existing adjective
 
 	private void pickName(Card card) {
-		Random nameIndex = new Random();
-		card.setName(card.getName() + " " + names.get(nameIndex.nextInt(names.size())));
+		card.setName(card.getName() + " " + names.get(r.nextInt(names.size())));
 	}
+
+	// Assigns random stats to the Card, which vary based on Card type and level
 
 	private void pickStats(Card card) {
 
-		// Apply basic random stats based on the Card level
+		// Choose a random card level and apply basic random stats based on it
 
-		Random r = new Random();
 		card.setLevel(r.nextInt(5) + 1);
 		int maxHP = (MINIMUM_HP + r.nextInt(11)) * card.getLevel();
 		int upperAP = r.nextInt(11) * card.getLevel();
@@ -156,22 +159,24 @@ public class CardGenerator {
 	// Reads types and adjectives from adjAndType.txt file and organizes them
 	// into a map
 
-	private void readFromAdj() {
+	private void readFromAdjectives() {
 		try {
 			File typesAndAdjs = new File("docs/adjAndType.txt");
 			Scanner reader = new Scanner(typesAndAdjs);
 			while (reader.hasNextLine()) {
 				String type = reader.next();
 				String adjective = reader.next();
-				if (!typesAndAdjectives.containsKey(type)) {
+				if (!typesAndAdjectives.containsKey(type)) { // Add the type to
+																// the map
 					typesAndAdjectives.put(type, new ArrayList<String>());
 					typesAndAdjectives.get(type).add(adjective);
-				} else {
+				} else { // Add the adjective to the map
 					typesAndAdjectives.get(type).add(adjective);
 				}
 			}
 			reader.close();
-		} catch (Exception e) {
+		} catch (IOException e) {
+			System.out.println("Error reading adjAndType.txt");
 		}
 	}
 
@@ -185,9 +190,10 @@ public class CardGenerator {
 				names.add(reader.nextLine());
 			}
 			reader.close();
-		} catch (Exception e) {	
+		} catch (IOException e) {
+			System.out.println("Error reading names.txt");
 		}
-		
+
 	}
 
 }

@@ -27,7 +27,7 @@ public class CardBattleIO {
 
 	// Prompts the Player to choose a difficulty level
 
-	public String pickDifficulty() {
+	public void pickDifficulty() {
 		System.out.println("Please choose a difficulty level [1 - 3]:");
 		System.out.println("1. Easy");
 		System.out.println("2. Medium");
@@ -45,13 +45,12 @@ public class CardBattleIO {
 		}
 		reader.reset();
 		if (choice == 1) {
-			return "Easy";
+			board.setDifficulty("Easy");
 		} else if (choice == 2) {
-			return "Medium";
+			board.setDifficulty("Medium");
 		} else if (choice == 3) {
-			return "Hard";
+			board.setDifficulty("Hard");
 		}
-		throw new IllegalArgumentException("Invalid difficulty");
 	}
 
 	// Shows the human's cards including names and stats

@@ -1,13 +1,15 @@
 import java.util.*;
 
 /*
- * This class represents a Player object in the game. It keeps track of a single contestant, including the name of the
+ * This class represents a Player in Card Battle. It keeps track of a single contestant, including the name of the
  * contestant, their current hand, and their HP.
  * 
  * Author: Eric Wahlquist
  */
 
 public class Player {
+	
+	public static final int PLAYER_MAX_HP = 500;
 	
 	private String name;
 	private List<Card> hand;
@@ -23,11 +25,11 @@ public class Player {
 	
 	//Main constructor used for creating Player objects
 	
-	public Player(String name, int maxHP) {
-		this.name = name;
+	public Player(String name) {
+		setName(name);
 		hand = new ArrayList<Card>();
-		this.maxHP = maxHP;
-		currentHP = maxHP;
+		maxHP = PLAYER_MAX_HP;
+		currentHP = PLAYER_MAX_HP;
 	}
 	
 	//Returns the name of this Player
@@ -58,12 +60,6 @@ public class Player {
 	
 	public void setName(String name) {
 		this.name = name;
-	}
-	
-	//Sets the HP of this Player
-	
-	public void setMaxHP(int maxHP) {
-		this.maxHP = maxHP;
 	}
 	
 	//Adds a given amount of HP to this Player's health

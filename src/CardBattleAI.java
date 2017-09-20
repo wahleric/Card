@@ -9,9 +9,7 @@ import java.util.*;
 public class CardBattleAI {
 
 	private final int INITIAL_DEAL_NUMBER = 5;
-	private static final int CARDS_IN_DECK = 100;
 
-	private String difficulty;
 	private Board board;
 	private Random r;
 
@@ -24,23 +22,9 @@ public class CardBattleAI {
 
 	// Creates a CardBattleAI from a given board and difficulty
 
-	public CardBattleAI(Board board, String difficulty) {
-		if (!(difficulty.equalsIgnoreCase("Easy") || difficulty.equalsIgnoreCase("Medium")
-				|| difficulty.equalsIgnoreCase("Hard"))) {
-			throw new IllegalArgumentException("Invalid difficulty");
-		}
-		this.difficulty = difficulty;
+	public CardBattleAI(Board board) {
 		this.board = board;
 		r = new Random();
-	}
-
-	// Initializes the board deck with a given number of Cards
-
-	public void initializeDeck() throws IOException {
-		CardGenerator generator = new CardGenerator();
-		for (int cardNumber = 1; cardNumber <= CARDS_IN_DECK; cardNumber++) {
-			board.addCardToDeck(generator.generateRandomCard());
-		}
 	}
 
 	// Draws INITIAL_DEAL_NUMBER Cards for each player
@@ -154,7 +138,7 @@ public class CardBattleAI {
 	// difficulty level
 
 	public void computerTurn() {
-		if (difficulty.equalsIgnoreCase("Easy")) {
+		if (board.getDifficulty().equalsIgnoreCase("Easy")) {
 			easyAI();
 		} else {
 			mediumAndHardAI();
@@ -228,7 +212,7 @@ public class CardBattleAI {
 					}
 
 					// If the difficulty is "Hard", apply additional checks
-					if (difficulty.equalsIgnoreCase("Hard")) {
+					if (board.getDifficulty().equalsIgnoreCase("Hard")) {
 						hardBonus = hardAI(nodeNumber, card);
 					}
 
@@ -399,7 +383,7 @@ public class CardBattleAI {
 			return board.getComputerPlayer();
 		}
 		if (board.getHumanPlayer().getCurrentHP() <= 0 && board.getComputerPlayer().getCurrentHP() <= 0) {
-			return new Player("a tie", 0);
+			return new Player("a tie");
 		}
 		return null;
 	}

@@ -9,17 +9,17 @@ import java.io.*;
 
 public class CardBattleConsole {
 
-	public static final int PLAYER_MAX_HP = 500;
+	// Main method runs Card Battle
 
-	// Main method runs game
 	public static void main(String[] args) throws IOException {
-		Board board = new Board(new Player("Human", PLAYER_MAX_HP), new Player("Computer", PLAYER_MAX_HP));
+		Board board = new Board(new Player("Human"), new Player("Computer"));
 		CardBattleIO io = new CardBattleIO(board);
+		CardBattleAI ai = new CardBattleAI(board);
 		io.intro();
-		CardBattleAI ai = new CardBattleAI(board, io.pickDifficulty());
-		ai.initializeDeck();
+		io.pickDifficulty();
 		boolean playAgain = true;
-		while (playAgain) {
+		while (playAgain) { // Go through the game loop until the player decides
+							// to stop
 			gameLoop(board, ai, io);
 			CardBattleIO.wait(2);
 			if (ai.getWinner() != null) {
@@ -30,6 +30,8 @@ public class CardBattleConsole {
 		}
 		System.out.println("Thank you for playing!");
 	}
+
+	// gameLoop controls the loop of each individual match
 
 	public static void gameLoop(Board board, CardBattleAI ai, CardBattleIO io) {
 		board.resetBoard();

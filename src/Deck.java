@@ -29,7 +29,7 @@ public class Deck {
 
 	public Card drawCard() {
 		if (isEmpty()) {
-			throw new IllegalArgumentException("Deck is empty");
+			throw new IllegalArgumentException("Invalid: Deck is empty");
 		}
 		return deck.remove(0);
 	}
@@ -40,7 +40,7 @@ public class Deck {
 		Collections.shuffle(deck);
 	}
 
-	// Returns true if this Deck has no cards
+	// Returns true if this Deck is empty (has no cards left)
 
 	public boolean isEmpty() {
 		return deck.isEmpty();

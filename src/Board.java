@@ -1,14 +1,17 @@
 import java.io.*;
 
 /*
- * This class represents a board on which the game is played. The Board consists of Card Nodes arranged in 
- * a 5x5 square, which begins empty. Board keeps track of the game status including the placement of Cards as
- * well as the cards in each Player's hand.
+ * This class represents a board on which the game is played. The Board consists of Nodes arranged in 
+ * a 5x5 square, which all begin empty. Board keeps track of the game status including the Players 
+ * involved, the placement of Cards, the game deck and discard pile, the difficulty level, and the 
+ * current turn number.
  * 
  * Author: Eric Wahlquist
  */
 
 public class Board {
+
+	public static final int CARDS_IN_DECK = 100;
 
 	private Player human;
 	private Player computer;
@@ -16,6 +19,8 @@ public class Board {
 	private Deck discardPile;
 	private int turn;
 	private Node[] board;
+	private CardGenerator cardGenerator;
+	private String difficulty;
 
 	// Explicit private default constructor that prevents an invalid Board
 	// from being created
@@ -36,6 +41,9 @@ public class Board {
 		for (int i = 0; i < 25; i++) {
 			board[i] = new Node();
 		}
+		cardGenerator = new CardGenerator();
+		initializeDeck();
+		difficulty = "";
 	}
 
 	// Returns the human Player of this Board
@@ -57,26 +65,17 @@ public class Board {
 	}
 
 	// Returns the Card placed in a given Node on this Board. Returns null if
-	// the
-	// Node is empty
+	// the Node is empty
 
 	public Card getCardAtNode(int nodeNumber) {
 		return board[nodeNumber - 1].getCard();
 	}
 
 	// Returns the Zone bonus that is currently on the given Node. Returns null
-	// if
-	// there is no Zone bonus.
+	// if there is no Zone bonus
 
 	public Zone getZoneAtNode(int nodeNumber) {
 		return board[nodeNumber - 1].getZoneBonus();
-	}
-
-	// Returns true if the deck of all monster cards to draw from is empty;
-	// false otherwise
-
-	public boolean deckIsEmpty() {
-		return deck.isEmpty();
 	}
 
 	// Returns true if this Board is full (has no open Nodes left to place Cards
@@ -89,6 +88,18 @@ public class Board {
 			}
 		}
 		return true;
+	}
+
+	// Returns the current difficulty of this Board
+
+	public String getDifficulty() {
+		return difficulty;
+	}
+
+	// Sets the current difficulty of this Board
+
+	public void setDifficulty(String difficulty) {
+		this.difficulty = difficulty;
 	}
 
 	// Creates a Zone bonus on a given Node on the board
@@ -111,7 +122,8 @@ public class Board {
 		return false;
 	}
 
-	// Removes a Card from a Node on the Board and returns it
+	// Removes a Card from a Node on the Board, places it in the discard pile,
+	// and returns it
 
 	public Card removeCard(int nodeNumber) {
 		Card card = getCardAtNode(nodeNumber);
@@ -125,9 +137,6 @@ public class Board {
 	// Draws a card from this Board's Deck into a Player's hand
 
 	public Card drawCard(Player player) {
-		if (deckIsEmpty()) {
-			throw new IllegalArgumentException("Invalid: Deck is empty");
-		}
 		Card card = deck.drawCard();
 		if (player != null) {
 			card.setOwner(player);
@@ -180,6 +189,14 @@ public class Board {
 		computer.reset();
 		turn = 1;
 
+	}
+
+	// Initializes the Board deck with a given number of Cards
+
+	private void initializeDeck() {
+		for (int cardNumber = 1; cardNumber <= CARDS_IN_DECK; cardNumber++) {
+			addCardToDeck(cardGenerator.generateRandomCard());
+		}
 	}
 
 	// Returns a String representation of the current status of the board
@@ -404,7 +421,7 @@ public class Board {
 		private Card currentCard;
 		private Zone zoneBonus;
 
-		// Constructor creates a blank node
+		// Constructor creates a blank Node
 
 		public Node() {
 			setCurrentCard(null);
@@ -417,20 +434,21 @@ public class Board {
 			return currentCard;
 		}
 
-		// Returns the zone bonus currently in place in this Node. Returns null
+		// Returns the Zone bonus currently in place in this Node. Returns null
 		// if no bonus
 
 		public Zone getZoneBonus() {
 			return zoneBonus;
 		}
 
-		// Sets the zone bonus of this Node
+		// Sets the Zone bonus of this Node
 
 		public void setZoneBonus(Zone zone) {
 			zoneBonus = zone;
 		}
 
-		// Sets the current Card placed in this Node
+		// Sets the current Card placed in this Node and applies any Zone
+		// bonuses to it
 
 		public void setCurrentCard(Card card) {
 			this.currentCard = card;
@@ -439,7 +457,7 @@ public class Board {
 			}
 		}
 
-		// Removes a Card placed in this node and returns it
+		// Removes a Card placed in this Node and returns it
 
 		public Card removeCard() {
 			Card card = getCard();
