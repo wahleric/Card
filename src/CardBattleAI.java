@@ -376,13 +376,13 @@ public class CardBattleAI {
 	// a tie, or returns null if the game is not over
 
 	public Player getWinner() {
-		if (board.getHumanPlayer().getCurrentHP() > 0 && board.getComputerPlayer().getCurrentHP() <= 0) {
+		if (board.getHumanPlayer().getHP() > 0 && board.getComputerPlayer().getHP() <= 0) {
 			return board.getHumanPlayer();
 		}
-		if (board.getHumanPlayer().getCurrentHP() <= 0 && board.getComputerPlayer().getCurrentHP() > 0) {
+		if (board.getHumanPlayer().getHP() <= 0 && board.getComputerPlayer().getHP() > 0) {
 			return board.getComputerPlayer();
 		}
-		if (board.getHumanPlayer().getCurrentHP() <= 0 && board.getComputerPlayer().getCurrentHP() <= 0) {
+		if (board.getHumanPlayer().getHP() <= 0 && board.getComputerPlayer().getHP() <= 0) {
 			return new Player("a tie");
 		}
 		return null;

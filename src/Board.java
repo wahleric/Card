@@ -13,10 +13,8 @@ public class Board {
 
 	public static final int CARDS_IN_DECK = 100;
 
-	private Player human;
-	private Player computer;
-	private Deck deck;
-	private Deck discardPile;
+	private Player human, computer;
+	private Deck deck, discardPile;
 	private int turn;
 	private Node[] board;
 	private CardGenerator cardGenerator;
@@ -31,19 +29,13 @@ public class Board {
 
 	// Main constructor used for creating Board objects
 
-	public Board(Player human, Player computer) throws IOException {
+	public Board(Player human, Player computer) {
 		this.human = human;
 		this.computer = computer;
-		deck = new Deck();
-		discardPile = new Deck();
-		turn = 1;
-		board = new Node[25];
-		for (int i = 0; i < 25; i++) {
-			board[i] = new Node();
-		}
-		cardGenerator = new CardGenerator();
-		initializeDeck();
-		difficulty = "";
+		this.turn = 1;
+		this.difficulty = "";
+		initializeBoard();
+		initializeDecks();
 	}
 
 	// Returns the human Player of this Board
@@ -67,23 +59,23 @@ public class Board {
 	// Returns the Card placed in a given Node on this Board. Returns null if
 	// the Node is empty
 
-	public Card getCardAtNode(int nodeNumber) {
-		return board[nodeNumber - 1].getCard();
+	public Card getCardAtNode(int slotNumber) {
+		return board[slotNumber - 1].getCard();
 	}
 
 	// Returns the Zone bonus that is currently on the given Node. Returns null
 	// if there is no Zone bonus
 
-	public Zone getZoneAtNode(int nodeNumber) {
-		return board[nodeNumber - 1].getZoneBonus();
+	public Zone getZoneAtNode(int slotNumber) {
+		return board[slotNumber - 1].getZoneBonus();
 	}
 
 	// Returns true if this Board is full (has no open Nodes left to place Cards
 	// in)
 
 	public boolean isFull() {
-		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
-			if (getCardAtNode(nodeNumber) == null) {
+		for (int slotNumber = 1; slotNumber < 26; slotNumber++) {
+			if (getCardAtNode(slotNumber) == null) {
 				return false;
 			}
 		}
@@ -111,9 +103,9 @@ public class Board {
 	// Places a card in a Node on the Board. Returns true if successful,
 	// false otherwise.
 
-	public boolean placeCard(Card card, int nodeNumber) {
-		if (getCardAtNode(nodeNumber) == null) {
-			board[nodeNumber - 1].setCurrentCard(card);
+	public boolean placeCard(Card card, int slotNumber) {
+		if (getCardAtNode(slotNumber) == null) {
+			board[slotNumber - 1].setCurrentCard(card);
 			if (!card.getOwner().getHand().remove(card)) {
 				throw new IllegalArgumentException("Invalid: Card is not in hand");
 			}
@@ -125,13 +117,13 @@ public class Board {
 	// Removes a Card from a Node on the Board, places it in the discard pile,
 	// and returns it
 
-	public Card removeCard(int nodeNumber) {
-		Card card = getCardAtNode(nodeNumber);
+	public Card removeCard(int slotNumber) {
+		Card card = getCardAtNode(slotNumber);
 		if (card == null) {
 			throw new IllegalArgumentException("Invalid: Node is empty");
 		}
 		discardPile.addCard(card);
-		return board[nodeNumber - 1].removeCard();
+		return board[slotNumber - 1].removeCard();
 	}
 
 	// Draws a card from this Board's Deck into a Player's hand
@@ -163,11 +155,11 @@ public class Board {
 
 		// Remove all Cards and zone bonuses from the board
 
-		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
-			if (getCardAtNode(nodeNumber) != null) {
-				removeCard(nodeNumber);
+		for (int slotNumber = 1; slotNumber < 26; slotNumber++) {
+			if (getCardAtNode(slotNumber) != null) {
+				removeCard(slotNumber);
 			}
-			generateZoneBonus(null, nodeNumber);
+			generateZoneBonus(null, slotNumber);
 		}
 
 		// Return all cards from Players' hands and the discard pile
@@ -193,9 +185,19 @@ public class Board {
 
 	// Initializes the Board deck with a given number of Cards
 
-	private void initializeDeck() {
-		for (int cardNumber = 1; cardNumber <= CARDS_IN_DECK; cardNumber++) {
+	private void initializeDecks() {
+		this.deck = new Deck();
+		this.discardPile = new Deck();
+		this.cardGenerator = new CardGenerator();
+		for (int cardNumber = 0; cardNumber < CARDS_IN_DECK; cardNumber++) {
 			addCardToDeck(cardGenerator.generateRandomCard());
+		}
+	}
+	
+	private void initializeBoard() {
+		board = new Node[25];
+		for (int i = 0; i < 25; i++) {
+			board[i] = new Node();
 		}
 	}
 

@@ -7,32 +7,22 @@
 
 public class Card {
 
-	// Monster's information
+	// Monster's basic information
 
-	private String name;
-	private String type;
-	private int level;
+	private String name, type;
 	private Player owner;
+	private int level;
 
 	// Monster's stats
 
-	private int maxHP;
-	private int initialUpperAP;
-	private int initialLowerAP;
-	private int initialLeftAP;
-	private int initialRightAP;
-
-	private int currentHP;
-	private int currentUpperAP;
-	private int currentLowerAP;
-	private int currentLeftAP;
-	private int currentRightAP;
+	private int maxHP, currentHP;
+	private int initialUpperAP, initialLowerAP, initialLeftAP, initialRightAP;
+	private int currentUpperAP, currentLowerAP, currentLeftAP, currentRightAP;
 
 	// Keeps track of number of turns left of any contamination on this monster
 
-	int contaminatedTurnsLeft;
+	private int contaminatedTurnsLeft;
 
-	
 	// Explicit private default constructor that prevents invalid Cards from
 	// being created
 
@@ -233,13 +223,13 @@ public class Card {
 
 	// Sets this Card to be contaminated (was hit by a toxic monster) until a
 	// given turn number
-	
+
 	public void setContaminatedTurnsLeft(int numberOfTurns) {
 		contaminatedTurnsLeft = numberOfTurns;
 	}
 
 	// Resets all current stats to their initial numbers and clears the owner
-	
+
 	public void reset() {
 		setCurrentHP(maxHP);
 		setCurrentAP(initialUpperAP, initialLowerAP, initialLeftAP, initialRightAP);
@@ -249,7 +239,7 @@ public class Card {
 
 	// Returns a string that displays the information of the monster represented
 	// by this Card
-	
+
 	public String toString() {
 		String s = name + ":\n\n";
 		s += "Type: " + type + "\n";
