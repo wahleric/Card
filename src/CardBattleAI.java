@@ -1,9 +1,10 @@
-import java.io.IOException;
 import java.util.*;
 
 /*
  * This class contains methods used for calculations in the Card Battle game, including the AI code for the computer's turn as well as
  * end of turn and end of game procedures.
+ * 
+ * Author: Eric Wahlquist
  */
 
 public class CardBattleAI {

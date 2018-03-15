@@ -1,5 +1,3 @@
-import java.io.*;
-
 /*
  * This class represents a board on which the game is played. The Board consists of Nodes arranged in 
  * a 5x5 square, which all begin empty. Board keeps track of the game status including the Players 
@@ -183,7 +181,7 @@ public class Board {
 
 	}
 
-	// Initializes the Board deck with a given number of Cards
+	// Initializes the Board deck with a given number of Cards and creates the discard pile
 
 	private void initializeDecks() {
 		this.deck = new Deck();
