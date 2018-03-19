@@ -1,3 +1,4 @@
+package Main;
 /*
  * This class represents a "hot zone" bonus that may occupy a Node on the Board. When a Card is placed in the Node,
  * the given bonus in applyZoneBonus will be applied, which varies depending on the Card placed.

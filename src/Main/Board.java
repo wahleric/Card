@@ -1,3 +1,4 @@
+package Main;
 /*
  * This class represents a board on which the game is played. The Board consists of Nodes arranged in 
  * a 5x5 square, which all begin empty. Board keeps track of the game status including the Players 

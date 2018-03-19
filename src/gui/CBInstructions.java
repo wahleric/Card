@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class CBInstructions extends JFrame {
+    
+    private static final Color BACKGROUND_COLOR = Color.BLACK;
+    private static final Color BORDER_COLOR = Color.GRAY;
 
 	private static final long serialVersionUID = 1L;
 
@@ -12,7 +15,11 @@ public class CBInstructions extends JFrame {
 		super("Instructions");
 
 		setLayout(new BorderLayout());
-		getContentPane().setBackground(Color.BLACK);
+		getContentPane().setBackground(BACKGROUND_COLOR);
+		
+		// Set the window border
+        getRootPane().setBorder(BorderFactory.createMatteBorder(0, 3, 3, 3, BORDER_COLOR));
+        
 		// Create the tabbed pane and prepare each tab
 
 		JTabbedPane tabbedPane = new JTabbedPane();

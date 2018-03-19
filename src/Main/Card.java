@@ -1,3 +1,4 @@
+package Main;
 /*
  * This class represents a monster card used in Card Battle. Each Card has a name of the monster (name), a monster type, 
  * its monster level, its health (hP), and it's original and current upper, lower, left, and right attack points (AP).

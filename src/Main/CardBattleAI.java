@@ -1,3 +1,4 @@
+package Main;
 import java.util.*;
 
 /*
@@ -165,7 +166,7 @@ public class CardBattleAI {
 	private void mediumAndHardAI() {
 		Card cardToPlay = null;
 		int nodeToPlay = -1;
-		int maxScore = -1000000;
+		int maxScore = Integer.MIN_VALUE;
 		for (int nodeNumber = 1; nodeNumber < 26; nodeNumber++) {
 			Card cardInNode = board.getCardAtNode(nodeNumber);
 			if (cardInNode == null) {
