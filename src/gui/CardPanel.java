@@ -13,7 +13,7 @@ import Main.Card;
 public class CardPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
-    private static final int CARD_SIZE = 120;
+    private static final int CARD_SIZE = 150;
     private Card card;
     
     public CardPanel(Card card) {
@@ -32,24 +32,33 @@ public class CardPanel extends JPanel {
         g2d.setColor(Color.WHITE);
         
         if (card != null) {
-            System.out.println("TEST");
+
             // Draw card's upper AP
-            
+            String upperAP = card.getCurrentUpperAP() + "";
+            g2d.drawString(upperAP, (CARD_SIZE / 2) - (4*upperAP.length()), 20);
             
             // Draw card's right AP
-            // Draw card's lower AP
-            // Draw card's left AP
+            String rightAP = card.getCurrentRightAP() + "";
+            g2d.drawString(rightAP, (CARD_SIZE - 15) - (4*rightAP.length()), CARD_SIZE / 2);
             
-            // Center card name
-            g2d.drawString(card.getName(), (CARD_SIZE / 2) - (4*card.getName().length()), CARD_SIZE / 2);
+            // Draw card's lower AP
+            String lowerAP = card.getCurrentLowerAP() + "";
+            g2d.drawString(lowerAP, (CARD_SIZE / 2) - (4*upperAP.length()), CARD_SIZE - 10);
+            
+            // Draw card's left AP
+            String leftAP = card.getCurrentLeftAP() + "";
+            g2d.drawString(leftAP, 5, CARD_SIZE / 2);
+            
+            // Draw card name
+            g2d.drawString(card.getName(), (CARD_SIZE / 2) - (4*card.getName().length()), CARD_SIZE / 3);
             
             // Draw card's HP
             String hp = card.getCurrentHP() + "/" + card.getMaxHP();
-            g2d.drawString(hp, (CARD_SIZE / 2) - (4*hp.length()), (CARD_SIZE / 2) + 10);
+            g2d.drawString(hp, (CARD_SIZE / 2) - (4*hp.length()), (CARD_SIZE / 3) + 15);
         }         
     }
     
-    public void setCard(Card card) {
+    public void updateCard(Card card) {
         this.card = card;
     }
 

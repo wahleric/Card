@@ -21,24 +21,25 @@ public class ViewPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     
     private Board board;
-    private CardPanel[] slots;
+    private CardPanel[][] cards;
 
     public ViewPanel(Board board) {
         
         // Set panel attributes
         this.board = board;
-        this.slots = new CardPanel[25];
+        this.cards = new CardPanel[5][5];
         setPreferredSize(new Dimension(1024, 768));
+        setDoubleBuffered(true);
         this.setBorder(BorderFactory.createMatteBorder(0, 1, 2, 1, BORDER_COLOR));
         setLayout(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
         
         // Add the Card panels
         for (int i = 0; i < 5; i++) {
-            for (int j = 1; j < 6; j++) {
-                CardPanel cardPanel = new CardPanel(board.getCardAtNode((i * 5) + j));
+            for (int j = 0; j < 5; j++) {
+                CardPanel cardPanel = new CardPanel(null);
+                cards[i][j] = cardPanel;
                 add(cardPanel, gc);
-                slots[(i * 5) + j - 1] = cardPanel;
                 gc.gridx++;
             }
             gc.gridx = 0;
@@ -51,8 +52,10 @@ public class ViewPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         setBackground(BACKGROUND_COLOR);
         g.setColor(Color.WHITE);
-        for (int i = 0; i < 25; i++) {
-            slots[i].repaint();
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                cards[i][j].updateCard(board.getCardAtNode((i * 5) + (j + 1)));
+            }
         }
     }
 

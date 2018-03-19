@@ -19,7 +19,8 @@ public class CardBattleGUI {
 	    Card card = new Card("TEST", "Hot", 5, 100, 20 , 20, 20, 15, human);
 	    human.getHand().add(card);
 	    board.placeCard(card, 17);
-		
+	    ai.initialDraw();
+	    
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				CBMainFrame frame = new CBMainFrame("Card Battle", board, ai);
