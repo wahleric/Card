@@ -15,7 +15,7 @@ public class Board {
 	private Player human, computer;
 	private Deck deck, discardPile;
 	private int turn;
-	private Node[] board;
+	private Node[][] board;
 	private CardGenerator cardGenerator;
 	private String difficulty;
 
@@ -58,26 +58,28 @@ public class Board {
 	// Returns the Card placed in a given Node on this Board. Returns null if
 	// the Node is empty
 
-	public Card getCardAtNode(int slotNumber) {
-		return board[slotNumber - 1].getCard();
+	public Card getCard(int row, int column) {
+		return board[row][column].getCard();
 	}
 
 	// Returns the Zone bonus that is currently on the given Node. Returns null
 	// if there is no Zone bonus
 
-	public Zone getZoneAtNode(int slotNumber) {
-		return board[slotNumber - 1].getZoneBonus();
+	public Zone getZone(int row, int column) {
+		return board[row][column].getZoneBonus();
 	}
 
 	// Returns true if this Board is full (has no open Nodes left to place Cards
 	// in)
 
 	public boolean isFull() {
-		for (int slotNumber = 1; slotNumber < 26; slotNumber++) {
-			if (getCardAtNode(slotNumber) == null) {
-				return false;
-			}
-		}
+	    for (int i = 0; i < 5; i++) {
+	        for (int j = 0; j < 5; j++) {
+	            if (getCard(i, j) == null) {
+	                return false;
+	            }
+	        }
+	    }
 		return true;
 	}
 
@@ -95,16 +97,16 @@ public class Board {
 
 	// Creates a Zone bonus on a given Node on the board
 
-	public void generateZoneBonus(Zone zone, int nodeNumber) {
-		board[nodeNumber - 1].setZoneBonus(zone);
+	public void generateZoneBonus(Zone zone, int row, int column) {
+	    board[row][column].setZoneBonus(zone);
 	}
 
 	// Places a card in a Node on the Board. Returns true if successful,
 	// false otherwise.
 
-	public boolean placeCard(Card card, int slotNumber) {
-		if (getCardAtNode(slotNumber) == null) {
-			board[slotNumber - 1].setCurrentCard(card);
+	public boolean placeCard(Card card, int row, int column) {
+		if (getCard(row, column) == null) {
+			board[row][column].setCurrentCard(card);
 			if (!card.getOwner().getHand().remove(card)) {
 				throw new IllegalArgumentException("Invalid: Card is not in hand");
 			}
@@ -116,13 +118,13 @@ public class Board {
 	// Removes a Card from a Node on the Board, places it in the discard pile,
 	// and returns it
 
-	public Card removeCard(int slotNumber) {
-		Card card = getCardAtNode(slotNumber);
+	public Card removeCard(int row, int column) {
+		Card card = getCard(row, column);
 		if (card == null) {
 			throw new IllegalArgumentException("Invalid: Node is empty");
 		}
 		discardPile.addCard(card);
-		return board[slotNumber - 1].removeCard();
+		return board[row][column].removeCard();
 	}
 
 	// Draws a card from this Board's Deck into a Player's hand
@@ -153,13 +155,15 @@ public class Board {
 	public void resetBoard() {
 
 		// Remove all Cards and zone bonuses from the board
-
-		for (int slotNumber = 1; slotNumber < 26; slotNumber++) {
-			if (getCardAtNode(slotNumber) != null) {
-				removeCard(slotNumber);
-			}
-			generateZoneBonus(null, slotNumber);
-		}
+	    
+	    for (int i = 0; i < 5; i++) {
+	        for (int j = 0; j < 5; j++) {
+	            if (getCard(i, j) != null) {
+	                removeCard(i, j);
+	            }
+	            generateZoneBonus(null, i, j);
+	        }
+	    }
 
 		// Return all cards from Players' hands and the discard pile
 
@@ -194,9 +198,11 @@ public class Board {
 	}
 	
 	private void initializeBoard() {
-		board = new Node[25];
-		for (int i = 0; i < 25; i++) {
-			board[i] = new Node();
+		board = new Node[5][5];
+		for (int i = 0; i < 5; i++) {
+		    for (int j = 0; j < 5; j++) {
+		        board[i][j] = new Node();
+		    }
 		}
 	}
 
@@ -211,22 +217,23 @@ public class Board {
 		s += padString(" ", spacing);
 		s += computerHP;
 		s += "\n\n" + border();
-		for (int level = 0; level < 5; level++) {
-			s += firstLine(level);
-			s += zoneLine(level);
-			s += monsterNameLine(level);
-			s += hPLine(level);
-			s += middleLine(level);
+		
+		for (int row = 0; row < 5; row++) {
+			s += firstLine(row);
+			s += zoneLine(row);
+			s += monsterNameLine(row);
+			s += hPLine(row);
+			s += middleLine(row);
 			s += spacerLine();
-			s += monsterOwnerLine(level);
-			s += zoneLine(level);
-			s += lastLine(level);
+			s += monsterOwnerLine(row);
+			s += zoneLine(row);
+			s += lastLine(row);
 			s += border();
 		}
 		return s;
 	}
 
-	// Private helper method for toString() displays a border between Nodes
+	// Private helper method for toString() displays a border between card slots
 
 	private String border() {
 		String border = "\n";
@@ -239,10 +246,10 @@ public class Board {
 	// Private helper method for toString() displays a line that describes the
 	// Zone type of a Node if applicable
 
-	private String zoneLine(int level) {
+	private String zoneLine(int row) {
 		String zoneLine = "|";
-		for (int boxNumber = 1; boxNumber < 6; boxNumber++) {
-			Zone zone = getZoneAtNode(5 * level + boxNumber);
+		for (int column = 0; column < 5; column++) {
+			Zone zone = getZone(row, column);
 			if (zone != null) {
 				zoneLine += padString("* " + zone.getType().toUpperCase() + " ZONE *", 25) + "|";
 			} else {
@@ -258,7 +265,7 @@ public class Board {
 
 	private String spacerLine() {
 		String spacer = "|\n";
-		for (int boxNumber = 1; boxNumber < 6; boxNumber++) {
+		for (int column = 0; column < 5; column++) {
 			spacer = padString(" ", 25) + spacer;
 			spacer = "|" + spacer;
 		}
@@ -278,10 +285,10 @@ public class Board {
 	// Private helper method for toString() displays upper AP of each Node's
 	// current card if applicable
 
-	private String firstLine(int level) {
+	private String firstLine(int row) {
 		String top = "|";
-		for (int boxNumber = 1; boxNumber < 6; boxNumber++) {
-			Card card = getCardAtNode(5 * level + boxNumber);
+		for (int column = 0; column < 5; column++) {
+			Card card = getCard(row, column);
 			if (card == null) {
 				top += spacerBox();
 			} else {
@@ -296,10 +303,10 @@ public class Board {
 	// Private helper method for toString() displays lower AP of each Node's
 	// current card if applicable
 
-	private String lastLine(int level) {
+	private String lastLine(int row) {
 		String bottom = "|";
-		for (int boxNumber = 1; boxNumber < 6; boxNumber++) {
-			Card card = getCardAtNode(5 * level + boxNumber);
+		for (int column = 0; column < 5; column++) {
+			Card card = getCard(row, column);
 			if (card == null) {
 				bottom += spacerBox();
 			} else {
@@ -314,10 +321,10 @@ public class Board {
 	// Private helper method for toString() displays the monster name for each
 	// Node's current Card if applicable
 
-	private String monsterNameLine(int level) {
+	private String monsterNameLine(int row) {
 		String mNL = "|";
-		for (int boxNumber = 1; boxNumber < 6; boxNumber++) {
-			Card card = getCardAtNode(5 * level + boxNumber);
+		for (int column = 0; column < 5; column++) {
+			Card card = getCard(row, column);
 			if (card == null) {
 				mNL += spacerBox();
 			} else {
@@ -332,10 +339,10 @@ public class Board {
 	// Private helper method for toString() displays each Node's monster's
 	// current and maximum HP if applicable
 
-	private String hPLine(int level) {
+	private String hPLine(int row) {
 		String hPLine = "|";
-		for (int boxNumber = 1; boxNumber < 6; boxNumber++) {
-			Card card = getCardAtNode(5 * level + boxNumber);
+		for (int column = 0; column < 5; column++) {
+			Card card = getCard(row, column);
 			if (card == null) {
 				hPLine += spacerBox();
 			} else {
@@ -354,10 +361,10 @@ public class Board {
 	// Private helper method for toString() displays left and right AP for each
 	// Node's monster if applicable
 
-	private String middleLine(int level) {
+	private String middleLine(int row) {
 		String middleLine = "|";
-		for (int boxNumber = 1; boxNumber < 6; boxNumber++) {
-			Card card = getCardAtNode(5 * level + boxNumber);
+		for (int column = 0; column < 5; column++) {
+			Card card = getCard(row, column);
 			if (card == null) {
 				middleLine += spacerBox();
 			} else {
@@ -377,10 +384,10 @@ public class Board {
 	// Private helper method for toString() displays each Node's monster's owner
 	// if applicable
 
-	private String monsterOwnerLine(int level) {
+	private String monsterOwnerLine(int row) {
 		String mOL = "|";
-		for (int boxNumber = 1; boxNumber < 6; boxNumber++) {
-			Card card = getCardAtNode(5 * level + boxNumber);
+		for (int column = 0; column < 5; column++) {
+			Card card = getCard(row, column);
 			if (card == null) {
 				mOL += spacerBox();
 			} else {

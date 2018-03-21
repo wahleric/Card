@@ -76,7 +76,7 @@ public class CardBattleIO {
 		showPlayersCards();
 		Card card = pickCard();
 		int nodeNumber = pickNode();
-		board.placeCard(card, nodeNumber);
+		board.placeCard(card, nodeNumber / 5, nodeNumber % 5);
 		board.drawCard(board.getHumanPlayer());
 	}
 
@@ -151,17 +151,17 @@ public class CardBattleIO {
 
 	public int pickNode() {
 		int nodeNumber = -1;
-		System.out.println("Which node would you like to place the card in (1 - 25)?");
-		while (nodeNumber < 1 || nodeNumber > 25 || board.getCardAtNode(nodeNumber) != null) {
+		System.out.println("Which node would you like to place the card in (0 - 24)?");
+		while (nodeNumber < 0 || nodeNumber > 24 || board.getCard(nodeNumber / 5, nodeNumber % 5) != null) {
 			try {
 				nodeNumber = reader.nextInt();
 			} catch (InputMismatchException noInt) {
 				reader.next();
 			}
-			if (nodeNumber < 1 || nodeNumber > 25) {
-				System.out.println("Please enter a valid node number (1 - 25)");
-			} else if (board.getCardAtNode(nodeNumber) != null) {
-				System.out.println("Node is occupied. Please enter a different valid node number (1 - 25)");
+			if (nodeNumber < 0 || nodeNumber > 24) {
+				System.out.println("Please enter a valid node number (0 - 24)");
+			} else if (board.getCard(nodeNumber / 5, nodeNumber % 5) != null) {
+				System.out.println("Node is occupied. Please enter a different valid node number (0 - 24)");
 			}
 		}
 		reader.reset();
