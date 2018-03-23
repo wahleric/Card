@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,7 +10,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
@@ -23,7 +26,7 @@ public class ViewPanel extends JPanel {
     private static final Color NEUTRAL_COLOR = Color.WHITE;
     private static final Color FRIENDLY_COLOR = Color.GREEN;
     private static final Color ENEMY_COLOR = Color.RED;
-    private static final Color TEXT_COLOR = Color.WHITE;
+    private static final Font CARD_FONT = new Font("Arial", Font.BOLD, 12);
 
     private static final long serialVersionUID = 1L;
 
@@ -51,9 +54,7 @@ public class ViewPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
 
         g2d.setBackground(BACKGROUND_COLOR);
-        
-        Font font = new Font("Arial", Font.BOLD, 12);
-        FontMetrics fm = getFontMetrics(font);
+        g2d.setFont(CARD_FONT);
 
         int x = 5;
         int y = 5;
@@ -63,7 +64,14 @@ public class ViewPanel extends JPanel {
                 Card card = board.getCard(row, column);
                 if (card == null) {
 
+                    BufferedImage emptyImage = null;
+                    
                     // Draw the empty slot background image
+                    try {
+                        emptyImage = ImageIO.read(new File("art/types/empty.jpg"));
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException("Type image not found: " + card.getType() + ".jpg");
+                    }
 
                     // No card in this slot, so draw it as an empty slot
                     g2d.setColor(NEUTRAL_COLOR);
@@ -73,12 +81,21 @@ public class ViewPanel extends JPanel {
                     // Draw the zone information
                     if (board.getZone(row, column) != null) {
                         String zone = "**" + board.getZone(row, column).getType() + " ZONE**";
-                        Rectangle2D zoneSize = fm.getStringBounds(zone, g);
-                        g2d.drawString(zone, (int)(x + ((150 - zoneSize.getWidth()) / 2.0)), y + 75);
+                        int width = g2d.getFontMetrics().stringWidth(zone);
+                        g2d.drawString(zone, (int)(x + ((150 - width) / 2.0)), y + 75);
                     }
                 } else {
 
                     // Draw the appropriate background image of the card
+                    BufferedImage typeImage = null;
+                    try {
+                        typeImage = ImageIO.read(new File("art/types/" + card.getType() + ".jpg"));
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException("Type image not found: " + card.getType() + ".jpg");
+                    }
+                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
+                    g2d.drawImage(typeImage, x, y, 150, 150, this);
+                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 
                     // Determine the color to draw the slot depending on card owner
                     if (card.getOwner() == board.getHumanPlayer()) {
@@ -90,40 +107,38 @@ public class ViewPanel extends JPanel {
                     g2d.setStroke(new BasicStroke(4));
                     g2d.drawRoundRect(x, y, 150, 150, 5, 5);
 
-                    // Draw the card's information
-                    g2d.setColor(TEXT_COLOR);
-        
-                    g2d.setFont(font);
+                    /**
+                     * Draw the card's information
+                     */
                     
                     // Draw the card's name
                     String name = card.getName();
-                    Rectangle2D nameSize = fm.getStringBounds(name, g);
-                    g2d.drawString(name, (int)(x + ((150 - nameSize.getWidth()) / 2.0)), y + 50);
+                    int width = g2d.getFontMetrics().stringWidth(name);
+                    g2d.drawString(name, (int)(x + ((150 - width) / 2.0)), y + 50);
                     
                     // Draw the card's HP
                     String hp = card.getCurrentHP() + "/" + card.getMaxHP();
-                    Rectangle2D hpSize = fm.getStringBounds(hp, g);
-                    g2d.drawString(hp, (int)(x + ((150 - hpSize.getWidth()) / 2.0)), y + 75);
+                    width = g2d.getFontMetrics().stringWidth(hp);
+                    g2d.drawString(hp, (int)(x + ((150 - width) / 2.0)), y + 75);
                     
                     // Draw the card's upper AP
                     String upAP = card.getCurrentUpperAP() + "";
-                    Rectangle2D upAPSize = fm.getStringBounds(upAP, g);
-                    g2d.drawString(upAP, (int)(x + ((150 - upAPSize.getWidth()) / 2.0)), y + 15);
+                    width = g2d.getFontMetrics().stringWidth(upAP);
+                    g2d.drawString(upAP, (int)(x + ((150 - width) / 2.0)), y + 15);
                     
                     // Draw the card's lower AP
                     String lowAP = card.getCurrentLowerAP() + "";
-                    Rectangle2D lowAPSize = fm.getStringBounds(lowAP, g);
-                    g2d.drawString(lowAP, (int)(x + ((150 - lowAPSize.getWidth()) / 2.0)), y + 145);
+                    width = g2d.getFontMetrics().stringWidth(lowAP);
+                    g2d.drawString(lowAP, (int)(x + ((150 - width) / 2.0)), y + 145);
                     
                     // Draw the card's left AP
                     String leftAP = card.getCurrentLeftAP() + "";
-                    Rectangle2D leftAPSize = fm.getStringBounds(leftAP, g);
                     g2d.drawString(leftAP, x + 5, y + 75);
                     
                     // Draw the card's right AP
                     String rightAP = card.getCurrentRightAP() + "";
-                    Rectangle2D rightAPSize = fm.getStringBounds(rightAP, g);
-                    g2d.drawString(rightAP, x + (int)(145 - rightAPSize.getWidth()), y + 75);
+                    width = g2d.getFontMetrics().stringWidth(rightAP);
+                    g2d.drawString(rightAP, x + (int)(145 - width), y + 75);
                 }
                 x += 155;
             }
