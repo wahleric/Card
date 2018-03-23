@@ -16,15 +16,12 @@ public class CardBattleGUI {
 	    Board board = new Board(human, new Player("Computer"));
 	    board.setDifficulty("Easy");
 	    CardBattleAI ai = new CardBattleAI(board);
-	    Card card = new Card("TEST", "Hot", 5, 100, 20 , 20, 20, 15, human);
-	    human.getHand().add(card);
-	    board.placeCard(card, 17);
 	    ai.initialDraw();
 	    
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				CBMainFrame frame = new CBMainFrame("Card Battle", board, ai);
-				frame.setPreferredSize(new Dimension(1024, 768));
+				frame.setPreferredSize(new Dimension(1000, 1100));
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.pack();
 				frame.setVisible(true);
