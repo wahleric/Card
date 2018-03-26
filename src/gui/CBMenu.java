@@ -1,6 +1,9 @@
 package gui;
 
 import javax.swing.*;
+
+import Main.Board;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -11,7 +14,7 @@ public class CBMenu extends JMenuBar {
     private CBAbout aboutFrame;
     private CBInstructions instructionsFrame;
 
-    public CBMenu() {
+    public CBMenu(Board board, ViewPanel view) {
         super();
         setOpaque(true);
         setBackground(Color.RED);
@@ -28,6 +31,17 @@ public class CBMenu extends JMenuBar {
 
         // Create "Easy", "Medium", and "Hard" menu items
         JMenuItem easy = new JMenuItem("Easy");
+        easy.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                board.resetBoard();
+                board.setDifficulty("Easy");
+                
+                // PERFORM BOARD SETUP STUFF HERE
+                
+                view.repaint();
+            }
+        }); 
+        
         JMenuItem medium = new JMenuItem("Medium");
         JMenuItem hard = new JMenuItem("Hard");
 
@@ -38,7 +52,6 @@ public class CBMenu extends JMenuBar {
 
         // Add action for "Quit"
         quit.addActionListener(new ActionListener() {
-
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);
             }

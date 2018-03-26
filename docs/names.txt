@@ -1,11 +1,8 @@
 Alien
-Alligator
 Anteater
 Aardvark
-Armadillo
 Baboon
 Badger
-Barracuda
 Bat
 Bear
 Beaver
@@ -18,18 +15,16 @@ Clown
 Cobra
 Cougar
 Cow
-Crocodile
 Deer
 Eagle
 Elephant
 Falcon
 Fox
 Frog
-Giant Worm
+Gator
 Giraffe
 Goat
 Gorilla
-Hippopotamus
 Hound
 Hornet
 Husky
@@ -40,7 +35,6 @@ Leopard
 Lion
 Mongoose
 Panther
-Porcupine
 Rabbit
 Rhino
 Scorpion
@@ -52,4 +46,5 @@ Tiger
 Turtle
 Wizard
 Wolf
+Worm
 Wombat

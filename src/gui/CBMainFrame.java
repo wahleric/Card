@@ -27,9 +27,9 @@ public class CBMainFrame extends JFrame {
 		ControlPanel control = new ControlPanel(view, board);
 		
 		// Add swing components
-		setJMenuBar(new CBMenu());
+		setJMenuBar(new CBMenu(board, view));
 		add(view, BorderLayout.CENTER);
-		add(control, BorderLayout.SOUTH);
+		add(control, BorderLayout.EAST);
 	}
 
 }
