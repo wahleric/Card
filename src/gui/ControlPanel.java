@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -21,6 +22,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import Main.*;
@@ -33,6 +35,8 @@ public class ControlPanel extends JPanel {
     private Board board;
     private int[] selectedSlot;
     private int selectedCard;
+    private JLabel gameInfo;
+    private JTextArea cardInfo;
 
     public ControlPanel(ViewPanel view, Board board) {
         this.view = view;
@@ -51,7 +55,7 @@ public class ControlPanel extends JPanel {
         /**
          * TEST ADD BUTTON
          */
-        JButton test = new JButton("Test");
+        JButton test = new JButton("Add");
         test.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -65,6 +69,7 @@ public class ControlPanel extends JPanel {
                     }
                 }
                 view.repaint();
+                cardInfo.setText(getCardInfo(board.getCard(selectedSlot[0], selectedSlot[1])));
             }
         });
 
@@ -81,25 +86,31 @@ public class ControlPanel extends JPanel {
                     }
                 }
                 view.repaint();
+                cardInfo.setText("");
             }
         });
 
-        gc.gridx = 2;
+        // Create JLabel, which shows information about the state of the game
+        this.cardInfo = new JTextArea();
+        cardInfo.setEditable(false);
+        cardInfo.setPreferredSize(new Dimension(280, 200));
+        cardInfo.setBackground(Color.BLACK);
+        cardInfo.setFont(ViewPanel.CARD_FONT.deriveFont(20));
+        cardInfo.setForeground(Color.WHITE);
+
+        gc.gridx = 0;
         gc.gridy = 0;
         add(test, gc);
-        gc.gridy = 1;
+        gc.gridx = 1;
         add(remove, gc);
-        
-    }
+        gc.weighty = 0.1;
+        gc.gridwidth = 2;
+        gc.gridx = 0;
+        gc.gridy = 1;
+        gc.anchor = GridBagConstraints.PAGE_END;
+        gc.insets = new Insets(0, 0, 10, 0);
+        add(cardInfo, gc);
 
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        this.setBackground(Color.LIGHT_GRAY);
-        List<Card> hand = board.getHumanPlayer().getHand();
-        for (int i = 0; i < hand.size(); i++) {
-            Card card = board.getHumanPlayer().getHand().get(i);
-            g.drawImage(view.drawCard(card, null, i == selectedCard), 100, 50 + (120 * i), 120, 120, this);
-        }
     }
 
     private class ViewListener implements MouseListener {
@@ -116,6 +127,13 @@ public class ControlPanel extends JPanel {
             selectedSlot[0] = row;
             selectedSlot[1] = column;
             view.updateSelected(row, column);
+            Card card = board.getCard(row, column);
+            if (card == null) {
+                cardInfo.setText("");
+            } else {
+                cardInfo.setText(getCardInfo(card));
+            }
+
         }
 
         public void mouseReleased(MouseEvent e) {
@@ -124,14 +142,28 @@ public class ControlPanel extends JPanel {
         public void mouseClicked(MouseEvent e) {
         }
     }
-    
-    private class cardLabel extends JLabel {
-        
-        Card card;
-        
-        public cardLabel(Card card) {
+
+    private String getCardInfo(Card card) {
+        String s = "";
+        s += "Monster: " + card.getName() + "\n";
+        s += "Type: " + card.getType() + "\n";
+        s += "Attack: \n";
+        s += "    Upper: " + card.getCurrentUpperAP() + "\n";
+        s += "    Lower: " + card.getCurrentLowerAP() + "\n";
+        s += "    Left:  " + card.getCurrentLeftAP() + "\n";
+        s += "    Right: " + card.getCurrentRightAP() + "\n";
+        s += "Hit Points: " + card.getCurrentHP() + "/" + card.getMaxHP() + "\n";
+        return s;
+    }
+
+    private class gameInfoLabel extends JLabel {
+
+        private Board board;
+
+        public gameInfoLabel(Board board) {
             super();
-            this.card = card;
+            this.setPreferredSize(new Dimension(280, 100));
+            this.board = board;
         }
         
         public void paintComponent(Graphics g) {

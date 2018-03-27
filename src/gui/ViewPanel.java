@@ -30,7 +30,7 @@ public class ViewPanel extends JPanel {
     private static final Color NEUTRAL_COLOR = Color.LIGHT_GRAY;
     private static final Color FRIENDLY_COLOR = Color.GREEN;
     private static final Color ENEMY_COLOR = Color.RED;
-    private static final Font CARD_FONT = loadFont();
+    public static final Font CARD_FONT = loadFont();
 
     private static final long serialVersionUID = 1L;
 
